@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
 public class Login extends JFrame implements ActionListener {
     // Components for the Login
     private JPanel titlePanel, loginForm;
@@ -88,18 +87,23 @@ public class Login extends JFrame implements ActionListener {
 
     private void validateLogin() {
         String userInput = user.getText(), passInput = new String(pass.getPassword());
-        if(userInput.equals(Constants.ADMIN_CREDENTIALS[0]) && passInput.equals(Constants.ADMIN_CREDENTIALS[1])) {
-            new Organizer();
-        } else if (userInput.equals(Constants.OFFICIAL_CREDENTIALS[0]) && passInput.equals(Constants.OFFICIAL_CREDENTIALS[1])) {
-            new TableOfficial();
-        } else {
-            System.out.println("Invalid.");
-            // Handle Invalid Login
+        boolean validAdminLogin = userInput.equals(Constants.ADMIN_CREDENTIALS[0]) && passInput.equals(Constants.ADMIN_CREDENTIALS[1]),
+        validOrgLogin = userInput.equals(Constants.OFFICIAL_CREDENTIALS[0]) && passInput.equals(Constants.OFFICIAL_CREDENTIALS[1]);
+        if (userInput.length() == 0 || passInput.length() == 0 || (!validAdminLogin && !validOrgLogin)){
+            new ErrorBox("Invalid Username/Password. Please enter valid/non-empty inputs.");
+            user.setText("");
+            pass.setText("");
         }
+
+        if(validAdminLogin) {
+            new Organizer();
+            dispose();
+        } else if (validOrgLogin) {
+            new TableOfficial();
+            dispose();
+        } 
         
     }
-
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -111,11 +115,26 @@ public class Login extends JFrame implements ActionListener {
     }
 }
 
-
+// Add all constants for the whole program HERE:
 class Constants {
     public static final String ASSET_DIR = "Resources/";
     public static final int WIDTH = 900, HEIGHT = 500;
     public static String[] ADMIN_CREDENTIALS = {"admin", "123"};
     public static String[] OFFICIAL_CREDENTIALS = {"official", "123"};
     public static String[] CUSTOM_COLORS = {"#3E3E42", "#252526", "#00ECA4", "#e4e4e4"};
+}
+
+// Display Error Messages HERE:
+class ErrorBox {
+    private Image icon;
+    private ImageIcon errorIcon;
+    public ErrorBox(String message) {
+        icon = new ImageIcon(Constants.ASSET_DIR + "error.png").getImage().getScaledInstance(32, 32, 4);
+        errorIcon = new ImageIcon(icon);
+        JOptionPane.showMessageDialog(null, 
+        message, 
+        "Error!", 
+        JOptionPane.ERROR_MESSAGE, 
+        errorIcon);
+    }
 }
