@@ -1,6 +1,7 @@
 import java.io.*;
 
 public class FileOperations {
+    
     private static final String DATA_DIR = "CSVFolder/";
     // Method that returns a boolean when: CSV File exists and follows the correct file structure
     public boolean checkFileStructure(String filePath, int fieldCount) {
