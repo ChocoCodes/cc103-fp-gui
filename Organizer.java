@@ -58,15 +58,10 @@ public class Organizer extends JFrame implements ActionListener {
         sideBar.setBackground(sideBarColor);
         sideBar.setLayout(null);
 
-        forms[0] = new JPanel(cdl);
-        forms[1] = new JPanel();
-        forms[2] = setTeamForm(formsColor);
-
-
         for(int i = 0; i < forms.length; i++) {
-            // Color tmpColor = (i % 2 == 0) ? Color.RED : Color.GREEN;
-            // forms[i].setBounds(270, 0, Constants.WIDTH, Constants.HEIGHT + 100);
-            // forms[i].setBackground(tmpColor);
+            forms[i] = (i == 0) ? new JPanel(cdl) : (i == 1) ? new JPanel() : setTeamForm();
+            forms[i].setBounds(270, 0, Constants.WIDTH, Constants.HEIGHT + 100);
+            forms[i].setBackground(formsColor);
             if(i == 0) {
                 continue;
             } else {
@@ -106,19 +101,39 @@ public class Organizer extends JFrame implements ActionListener {
         this.add(forms[0]);
     }
 
-    private JPanel setTeamForm(Color color) {
+    private JPanel setTeamForm() {
         JPanel tForm = new JPanel();
-        String[] displayLabels = {"Team Details", "Please enter team information below. No duplicate teams allowed.", "Team Name", "Player Counts"};
+        String[] displayLabels = {"TEAM DETAILS", "Please enter team information below. No duplicate teams allowed.", "Team Name", "Player Counts"};
         JLabel[] labels = new JLabel[4];
         JTextField[] inputFields = new JTextField[2];
+        JButton submit = new JButton("Submit");
 
         tForm.setLayout(null);
-        tForm.setBounds(270, 0, Constants.WIDTH, Constants.HEIGHT + 100);
-        tForm.setBackground(color);
         for(int i = 0; i < inputFields.length; i++) {
-            inputFields[i].setBounds(0, 0, 300, 40);
+            int yPos = 220 + (100 * i);
+            inputFields[i] = new JTextField();
+            inputFields[i].setFont(Constants.customFonts[1].deriveFont(20f));
+            inputFields[i].setBounds(250, yPos, 300, 40);
+            inputFields[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
             tForm.add(inputFields[i]);
         }
+
+        for(int i = 0; i < labels.length; i++) {
+            float size = (i == 0) ? 45f : (i == 1) ? 14f : 16f;
+            int yPos = (i == 0) ? 50 : (i == 1) ? 90 : (i == 2) ? 180 : 280,
+            xPos = (i == 1) ? 200 : 250;
+            labels[i] = new JLabel(displayLabels[i]);
+            labels[i].setFont(Constants.customFonts[0].deriveFont(size));
+            labels[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+            labels[i].setBounds(xPos, yPos, 450, 40);
+            tForm.add(labels[i]);
+        }
+
+        submit.setFont(Constants.customFonts[0].deriveFont(25f));
+        submit.setBounds(330,430, 140, 50);
+        submit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
+        submit.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        tForm.add(submit);
         return tForm;
     }
 
