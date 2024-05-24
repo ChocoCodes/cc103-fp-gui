@@ -184,11 +184,11 @@ class MessageBox {
         switch(flag) {
             case JOptionPane.ERROR_MESSAGE:
                 boxTitle = "Error!";
-                icon = new ImageIcon(Constants.ASSET_DIR + "error.png").getImage().getScaledInstance(32, 32, 4);
+                icon = new ImageIcon(Constants.ASSET_DIR + "error.png").getImage().getScaledInstance(32, 32, Image.SCALE_DEFAULT);
                 break;
             case JOptionPane.INFORMATION_MESSAGE:
                 boxTitle = "Info Message!";
-                icon = new ImageIcon(Constants.ASSET_DIR + "success.png").getImage().getScaledInstance(32, 32, 4);
+                icon = new ImageIcon(Constants.ASSET_DIR + "success.png").getImage().getScaledInstance(32, 32, Image.SCALE_DEFAULT);
                 break;
         }
         errorIcon = new ImageIcon(icon);
