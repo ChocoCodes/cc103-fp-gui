@@ -28,16 +28,17 @@ public class Login extends JFrame implements ActionListener {
     }
 
     private void initComponents() {      
-        loginFormFields[0] = new JLabel("Username*");
-        loginFormFields[1] = new JLabel("Password*");
-        loginFormFields[2] = new JLabel("WELCOME!");
-        loginFormFields[3] = new JLabel("Please enter your details below.");
+        String[] fields = {"Username*", "Password*", "WELCOME!", "Please enter your details below."};
+        String[] descFields = {"TOURNAMENT", "MANAGEMENT", "SYSTEM"};
+        for(int i = 0; i < loginFormFields.length; i++) {
+            loginFormFields[i] = new JLabel(fields[i]);
+        }
         user = new JTextField();
         pass = new JPasswordField();
         loginForm = new JPanel();
-        descriptionFields[0] = new JLabel("TOURNAMENT");
-        descriptionFields[1] = new JLabel("MANAGEMENT");
-        descriptionFields[2] = new JLabel("SYSTEM");
+        for(int i = 0; i < descriptionFields.length; i++) {
+            descriptionFields[i] = new JLabel(descFields[i]);
+        }
         titlePanel = new JPanel();
         descPanel = new JPanel();
         authBtn = new JButton("LOGIN");
@@ -90,7 +91,7 @@ public class Login extends JFrame implements ActionListener {
         authBtn.addActionListener(this);
         authBtn.setBounds(70, 350, 300, 50);
         authBtn.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
-        authBtn.setForeground(Color.decode(Constants.CUSTOM_COLORS[0]));
+        authBtn.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
         authBtn.setFont(Constants.customFonts[0].deriveFont(30f));
 
         loginForm.add(user);
@@ -147,7 +148,7 @@ class Constants {
     public static final int WIDTH = 900, HEIGHT = 500;
     public static String[] ADMIN_CREDENTIALS = {"admin", "123"};
     public static String[] OFFICIAL_CREDENTIALS = {"official", "123"};
-    public static String[] CUSTOM_COLORS = {"#262853", "#151139", "#00ECA4", "#e4e4e4"};
+    public static String[] CUSTOM_COLORS = {"#262853", "#151139", "#00ECA4", "#e4e4e4", "#3E3E42"};
     private static String[] FONT_STYLE_PATHS = {ASSET_DIR + "Fonts/HandoSoftTrial-Bold.ttf",
     ASSET_DIR + "Fonts/HandoSoftTrial-Regular.ttf"};
     public static Font[] customFonts = new Font[FONT_STYLE_PATHS.length];
