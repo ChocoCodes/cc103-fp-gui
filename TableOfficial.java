@@ -7,6 +7,8 @@ public class TableOfficial extends JFrame implements ActionListener {
     private JButton[] btns = new JButton[3];
     private JTable table;
 
+    //May gn add ko d nga addButton function saylo na lng ni guro sa constants nga method para magamit kag uniform tanan Line 173
+
     // Table Constants
     private final int SP_TABLE_STARTING_X_POS = 10;
     private final int SP_TABLE_STARTING_Y_POS = 70;
@@ -14,8 +16,8 @@ public class TableOfficial extends JFrame implements ActionListener {
     private final int SP_TABLE_HEIGHT = 405;
 
     // Button Constants
-    private final int BUTTON_WIDTH = 150;
-    private final int BUTTON_HEIGHT = 30;
+    private final int BUTTON_WIDTH_1 = 150;
+    private final int BUTTON_HEIGHT_1 = 30;
     private final int GAME_REPORT_BTN_X = 450;
     private final int GAME_REPORT_BTN_Y = 500;
     private final int PLAYER_STATS_BTN_X = 610;
@@ -72,8 +74,8 @@ public class TableOfficial extends JFrame implements ActionListener {
             forms.add(tableTitle); 
 
             // Buttons
-            addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y);
-            addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y);
+            addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+            addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
 
             forms.add(sp);
             forms.revalidate();
@@ -104,10 +106,10 @@ public class TableOfficial extends JFrame implements ActionListener {
             tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
             tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
             forms.add(tableTitle); 
-            
+
             // Buttons
-            addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y);
-            addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y);
+            addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+            addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
 
             forms.add(sp);
             forms.revalidate();
@@ -168,9 +170,9 @@ public class TableOfficial extends JFrame implements ActionListener {
         }
     }
 
-    private void addButton(String label, int xPos, int yPos) {
+    private void addButton(String label, int xPos, int yPos, int btnWidth, int btnHeight) {
         JButton button = new JButton(label);
-        button.setBounds(xPos, yPos, BUTTON_WIDTH, BUTTON_HEIGHT);
+        button.setBounds(xPos, yPos, btnWidth, btnHeight);
         button.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
         button.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
         button.setFont(Constants.customFonts[0].deriveFont(16f));
