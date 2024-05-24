@@ -7,7 +7,7 @@ public class Organizer extends JFrame implements ActionListener {
     private CardLayout cdl;
     private JPanel sideBar, forms;
     private JButton[] btns = new JButton[4];
-    private Color sideBarColor, formsColor, btnColor;
+    private Color sideBarColor, formsColor;
 
     public Organizer() {
         initComponents();

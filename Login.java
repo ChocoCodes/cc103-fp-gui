@@ -116,17 +116,17 @@ public class Login extends JFrame implements ActionListener {
         boolean validAdminLogin = userInput.equals(Constants.ADMIN_CREDENTIALS[0]) && passInput.equals(Constants.ADMIN_CREDENTIALS[1]),
         validOrgLogin = userInput.equals(Constants.OFFICIAL_CREDENTIALS[0]) && passInput.equals(Constants.OFFICIAL_CREDENTIALS[1]);
         if (userInput.length() == 0 || passInput.length() == 0 || (!validAdminLogin && !validOrgLogin)){
-            new MessageBox("Invalid Username/Password. Please enter a valid/non-empty input/s.", 0);
+            new MessageBox("Invalid Username/Password. Please enter a valid/non-empty input/s.", JOptionPane.ERROR_MESSAGE);
             user.setText("");
             pass.setText("");
         }
         if (validAdminLogin) {
-            new MessageBox("Organizer Login Success.", 1);
+            new MessageBox("Organizer Login Success.", JOptionPane.INFORMATION_MESSAGE);
             new Organizer();
             dispose();
         } 
         if (validOrgLogin) {
-            new MessageBox("Official Login Success.", 1);
+            new MessageBox("Official Login Success.", JOptionPane.INFORMATION_MESSAGE);
             new TableOfficial();
             dispose();
         } 
@@ -168,7 +168,7 @@ class Constants {
                     customFonts[i] = font;
                 }
             } catch (FontFormatException | IOException e) {
-                new MessageBox(e.getMessage(), 0);
+                new MessageBox(e.getMessage(), JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -182,11 +182,11 @@ class MessageBox {
     // 0 - ERROR MESSAGE, 1 - INFO MESSAGE
     public MessageBox(String message, int flag) {
         switch(flag) {
-            case 0:
+            case JOptionPane.ERROR_MESSAGE:
                 boxTitle = "Error!";
                 icon = new ImageIcon(Constants.ASSET_DIR + "error.png").getImage().getScaledInstance(32, 32, 4);
                 break;
-            case 1:
+            case JOptionPane.INFORMATION_MESSAGE:
                 boxTitle = "Info Message!";
                 icon = new ImageIcon(Constants.ASSET_DIR + "success.png").getImage().getScaledInstance(32, 32, 4);
                 break;
