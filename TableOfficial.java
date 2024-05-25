@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
@@ -70,7 +72,7 @@ public class TableOfficial extends JFrame implements ActionListener {
         
         //TODO create read file from CSV
         // Sample Data for now
-        String[] columnNames = {"Column 1", "Column 2", "Column 3"};
+        String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."};
         String[][] data = {
             {"TEAM A", "TEAM B", "1"},
             {"TEAM C", "TEAM D", "2"}
@@ -85,6 +87,26 @@ public class TableOfficial extends JFrame implements ActionListener {
     
         table = new JTable(model);
         JScrollPane sp = new JScrollPane(table);
+        //Styling
+        table.setBackground(new Color(55, 58, 99));  // Darker blue background for the table
+        table.setForeground(new Color(220, 220, 220)); // Lighter gray text
+        table.setFont(new Font("Arial", Font.BOLD, 16)); 
+        table.setRowHeight(40);
+        table.setShowGrid(false); 
+        table.setBorder(BorderFactory.createEmptyBorder());
+        // Header Styling
+        table.getTableHeader().setBackground(new Color(38, 40, 83)); // Match form background
+        table.getTableHeader().setForeground(new Color(180, 205, 230)); // Light blue header text for contrast
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 18));
+        table.getTableHeader().setPreferredSize(new Dimension(0, 65)); // Larger header height
+        table.getTableHeader().setBorder(BorderFactory.createEmptyBorder());
+        // Selection Styling
+        table.setSelectionBackground(new Color(77, 81, 125)); // Darker selection for contrast
+        table.setSelectionForeground(new Color(220, 220, 220));  // Light gray selection text
+
+        sp.getViewport().setBackground(new Color(21, 17, 57)); // Match table background
+        sp.setBorder(BorderFactory.createEmptyBorder());
+        
     
         sp.setBounds(SP_TABLE_STARTING_X_POS, SP_TABLE_STARTING_Y_POS, SP_TABLE_WIDTH, SP_TABLE_HEIGHT);
     
@@ -112,7 +134,7 @@ public class TableOfficial extends JFrame implements ActionListener {
         
         //TODO create read file from csv
         // Sample Data for now
-        String[] columnNames = {"Column A", "Column B", "Column C"};
+        String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."};
         String[][] data = {
             {"TEAM A", "TEAM B", "1"},
             {"TEAM C", "TEAM D", "2"}
@@ -127,9 +149,27 @@ public class TableOfficial extends JFrame implements ActionListener {
     
         table = new JTable(model);
         JScrollPane sp = new JScrollPane(table);
-    
+        //Styling
+        table.setBackground(new Color(55, 58, 99));  // Darker blue background for the table
+        table.setForeground(new Color(220, 220, 220)); // Lighter gray text
+        table.setFont(new Font("Arial", Font.BOLD, 16)); 
+        table.setRowHeight(40);
+        table.setShowGrid(false); 
+        table.setBorder(BorderFactory.createEmptyBorder());
+        // Header Styling
+        table.getTableHeader().setBackground(new Color(38, 40, 83)); // Match form background
+        table.getTableHeader().setForeground(new Color(180, 205, 230)); // Light blue header text for contrast
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 18));
+        table.getTableHeader().setPreferredSize(new Dimension(0, 65)); // Larger header height
+        // Selection Styling
+        table.setSelectionBackground(new Color(77, 81, 125)); // Darker selection for contrast
+        table.setSelectionForeground(new Color(220, 220, 220));  // Light gray selection text
+
+        sp.getViewport().setBackground(new Color(21, 17, 57)); // Match table background
+        sp.setBorder(BorderFactory.createEmptyBorder());
+        
         sp.setBounds(SP_TABLE_STARTING_X_POS, SP_TABLE_STARTING_Y_POS, SP_TABLE_WIDTH, SP_TABLE_HEIGHT);
-    
+        
         forms.removeAll(); 
     
         // Table Title
@@ -155,11 +195,127 @@ public class TableOfficial extends JFrame implements ActionListener {
             int selectedRow = table.getSelectedRow();
             int selectedColumn = table.getSelectedColumn();
     
-            if (selectedRow >= 0 && selectedColumn >= 0) {
+            if (selectedRow >= 0 && selectedColumn >= 0 && selectedColumn <= 1) {
                 Object cellValue = table.getValueAt(selectedRow, selectedColumn);
                 String cellValueString = String.valueOf(cellValue); // Convert to string
                 //DB
-                System.out.println("Selected Cell Value (Player Stats): " + cellValueString);
+                //System.out.println("Selected Cell Value (Player Stats): " + cellValueString);
+                forms.removeAll();
+                String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
+                String[][] data = {
+                    {"Raean Gwapo", "34", null, null, null, null, null},
+                    {"Tamayo Raean", "18", null, null, null, null, null}
+                };
+                DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return column > 1; 
+                    }
+                };
+                table = new JTable(model);
+                JScrollPane sp = new JScrollPane(table);
+                //Styling
+                table.setBackground(new Color(55, 58, 99));  // Darker blue background for the table
+                table.setForeground(new Color(220, 220, 220)); // Lighter gray text
+                table.setFont(new Font("Arial", Font.BOLD, 13)); 
+                table.setRowHeight(40);
+                table.setShowGrid(true); 
+                table.setBorder(BorderFactory.createEmptyBorder());
+                // Header Styling
+                table.getTableHeader().setBackground(new Color(38, 40, 83)); // Match form background
+                table.getTableHeader().setForeground(new Color(180, 205, 230)); // Light blue header text for contrast
+                table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 15));
+                table.getTableHeader().setPreferredSize(new Dimension(0, 65)); // Larger header height
+                // Selection Styling
+                table.setSelectionBackground(new Color(77, 81, 125)); // Darker selection for contrast
+                table.setSelectionForeground(new Color(220, 220, 220));  // Light gray selection text
+        
+                sp.getViewport().setBackground(new Color(21, 17, 57)); // Match table background
+                sp.setBorder(BorderFactory.createEmptyBorder());
+                
+                sp.setBounds(SP_TABLE_STARTING_X_POS, SP_TABLE_STARTING_Y_POS, SP_TABLE_WIDTH, SP_TABLE_HEIGHT);
+
+                addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+                addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+                JButton applyButton = addButton("Apply", APPLY_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+
+                applyButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        int rowCount = table.getRowCount();
+                        int columnCount = table.getColumnCount();
+                
+                        String[][] teamStats = new String[rowCount][columnCount]; 
+                        for (int row = 0; row < rowCount; row++) {
+                            for (int col = 0; col < columnCount; col++) { 
+                                teamStats[row][col] = String.valueOf(table.getValueAt(row, col));
+                            }
+                        }
+                        for (int row = 0; row < rowCount; row++) {
+                            teamStats[row][0] = table.getValueAt(row, 0).toString(); // Player name
+                            teamStats[row][1] = table.getValueAt(row, 1).toString(); // Jersey number
+                        }
+                
+                        boolean allFieldsFilled = true;
+                        boolean isValidNumber = true;
+                        for (int row = 0; row < rowCount; row++) {
+                            for (int col = 2; col < columnCount; col++) { 
+                                String inputValue = String.valueOf(table.getValueAt(row, col));
+                
+                                if (inputValue.trim().isEmpty() || !fileOp.checkIfNumber(inputValue)) { 
+                                    isValidNumber = false;  
+                                } else {
+                                    try {
+                                        int tempNum = Integer.parseInt(inputValue);
+                                        if (tempNum < 0) {
+                                            isValidNumber = false; 
+                                        }
+                                        teamStats[row][col - 2] = inputValue;
+                                    } catch (NumberFormatException nfe) {
+                                        new MessageBox("ERROR: Input must be an integer.", 0);
+                                        isValidNumber = false; 
+                                    }
+                                }
+                                if (!isValidNumber) {
+                                    break; 
+                                }
+                            }
+                            if (!isValidNumber) {
+                                break; 
+                            }
+                        }
+                        if (!allFieldsFilled) {
+                            // Clear only columns starting from index 2 in each row
+                            for (String[] row : teamStats) {
+                                Arrays.fill(row, 2, row.length, null); 
+                            }
+                            System.out.println("Missing input. Stats cleared.");
+                            new MessageBox("Please fill in all fields.", 0);
+                        } else if (!isValidNumber) {
+                            // Clear only columns starting from index 2 in each row
+                            for (String[] row : teamStats) {
+                                Arrays.fill(row, 2, row.length, null);
+                            }
+                            System.out.println("Invalid input. Stats cleared.");
+                            new MessageBox("Please enter valid integer numbers.", 0);
+                        } else {
+                            // DB
+                            new MessageBox("Player Stats saved to CSV successfully", 1);
+                            // saveGameReportToCSV(teamStats);
+                        }
+                
+                    }
+                });
+                // Table Title
+                JLabel tableTitle = new JLabel("ENCODE PLAYER STATS FOR " + cellValueString);
+                tableTitle.setBounds(SP_TABLE_STARTING_X_POS, TABLE_TITLE_Y, SP_TABLE_WIDTH, TABLE_TITLE_HEIGHT);
+                tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
+                tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+
+                forms.add(tableTitle);
+                forms.add(sp);
+                forms.revalidate();
+                forms.repaint();
             } else {
                 new MessageBox("No/Invalid Column Selected for Player Stats. Usage: Select A Team", 0);
             }
@@ -383,7 +539,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                 btns[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
                 btns[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
             } else {
-                int yPos = 230 + (90 * i);
+                int yPos = 235 + (87 * i);
                 btns[i].setBounds(10, yPos, 250, 70); 
                 btns[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[1]));
                 btns[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
