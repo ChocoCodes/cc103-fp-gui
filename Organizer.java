@@ -7,10 +7,14 @@ public class Organizer extends JFrame implements ActionListener {
     private CardLayout cdl;
     private JPanel sideBar;
     private JPanel[] forms = new JPanel[4];
-    private JButton[] btns = new JButton[4];
+    private JButton[] sideBarBtns = new JButton[4];
     private JLabel[] adminLabels = new JLabel[2];
     private Image adminProfile;
     private ImageIcon img;
+    private JButton playerFormSubmit;
+    private JTextField[] playerInputFields = new JTextField[3];
+    private JButton teamFormSubmit;
+    private JTextField[] teamInputFields = new JTextField[2];
 
     public Organizer() {
         initComponents();
@@ -25,27 +29,36 @@ public class Organizer extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    @Override
     public void actionPerformed(ActionEvent ae) {
-        if(ae.getSource() == btns[btns.length - 1]) {
+        if(ae.getSource() == sideBarBtns[sideBarBtns.length - 1]) {
             new MessageBox("Thanks for using the system!", 1);
             dispose();
             new Login();
         }
-        for(int i = 0; i < btns.length - 1; i++) {
-            if(ae.getSource() == btns[i]) {
+        for(int i = 0; i < sideBarBtns.length - 1; i++) {
+            if(ae.getSource() == sideBarBtns[i]) {
                 cdl.show(forms[0], Integer.toString(i + 1));
             }
+        }
+        if(ae.getSource() == playerFormSubmit || ae.getSource() == teamFormSubmit) {
+            System.out.println("Test Click!");
         }
     }
 
     private void initComponents() {
         img = new ImageIcon(Constants.ASSET_DIR + "kai-sotto.png");
-        String[] btnLabel = {"HOME", "ADD TEAMS", "ADD PLAYERS", "LOGOUT"};
+        String[] btnLabel = {
+            "HOME", 
+            "ADD TEAMS", 
+            "ADD PLAYERS", 
+            "LOGOUT"
+        };
         adminProfile = new ImageIcon(Constants.ASSET_DIR + "caloocan.jpg").getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         cdl = new CardLayout();
         sideBar = new JPanel(); 
-        for (int i = 0; i < btns.length; i++) {
-            btns[i] = new JButton(btnLabel[i]);
+        for (int i = 0; i < sideBarBtns.length; i++) {
+            sideBarBtns[i] = new JButton(btnLabel[i]);
         }
         for (int i = 0; i < adminLabels.length; i++) {
             adminLabels[i] = (i == 1) ? new JLabel("ADMIN") : new JLabel();
@@ -70,23 +83,23 @@ public class Organizer extends JFrame implements ActionListener {
             }
         }
 
-        for(int i = 0; i < btns.length; i++) {
-            if(i == btns.length - 1) {
-                btns[i].setBounds(35, 480, 200, 50);
-                btns[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
-                btns[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        for(int i = 0; i < sideBarBtns.length; i++) {
+            if(i == sideBarBtns.length - 1) {
+                sideBarBtns[i].setBounds(35, 480, 200, 50);
+                sideBarBtns[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
+                sideBarBtns[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
             } else {
                 int yPos = 200 + (70 * i);
-                btns[i].setBounds(10, yPos, 250, 50);
-                btns[i].setBackground(sideBarColor);
-                btns[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+                sideBarBtns[i].setBounds(10, yPos, 250, 50);
+                sideBarBtns[i].setBackground(sideBarColor);
+                sideBarBtns[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
                 
             }
-            btns[i].setFont(Constants.customFonts[0].deriveFont(30f));
-            btns[i].setBorderPainted(false);
-            btns[i].setFocusPainted(false);
-            btns[i].addActionListener(this);
-            sideBar.add(btns[i]);
+            sideBarBtns[i].setFont(Constants.customFonts[0].deriveFont(30f));
+            sideBarBtns[i].setBorderPainted(false);
+            sideBarBtns[i].setFocusPainted(false);
+            sideBarBtns[i].addActionListener(this);
+            sideBar.add(sideBarBtns[i]);
         }
 
         adminLabels[0].setBounds(85, 30, 100, 100);
@@ -106,8 +119,7 @@ public class Organizer extends JFrame implements ActionListener {
     private JPanel setPlayerForm() {
         JPanel tForm = new JPanel();
         JLabel[] labels = new JLabel[6];
-        JTextField[] inFields = new JTextField[3];
-        JButton submit = new JButton("Submit");
+        playerFormSubmit = new JButton("Submit");
         String[] displayLabels = {
             "PLAYER DETAILS", 
             "Please enter player information below. No duplicate players allowed.",
@@ -120,14 +132,14 @@ public class Organizer extends JFrame implements ActionListener {
         float size;
 
         tForm.setLayout(null);
-        for(int i = 0; i < inFields.length; i++) {
+        for(int i = 0; i < playerInputFields.length; i++) {
             xPos = (i % 2 == 0) ? 450 : 70;
-            yPos = (i == inFields.length - 1) ? 220 + 120 : 180;
-            inFields[i] = new JTextField();
-            inFields[i].setFont(Constants.customFonts[1].deriveFont(20f));
-            inFields[i].setBounds(xPos, yPos, 300, 40);
-            inFields[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
-            tForm.add(inFields[i]);
+            yPos = (i == playerInputFields.length - 1) ? 220 + 120 : 180;
+            playerInputFields[i] = new JTextField();
+            playerInputFields[i].setFont(new Font("Arial", Font.PLAIN, 20));
+            playerInputFields[i].setBounds(xPos, yPos, 300, 40);
+            playerInputFields[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
+            tForm.add(playerInputFields[i]);
         }
         for(int i = 0; i < labels.length; i++) {
             size = (i == 0) ? 45f : (i == 1) ? 14f : 16f;
@@ -137,19 +149,19 @@ public class Organizer extends JFrame implements ActionListener {
                 yPos = (i == 0) ? 30 : 70;         
             } else {
                 xPos = (i % 2 == 0) ? 70 : 450;
-                yPos = 140 + ((i - 2) / 2) * 160; // Align labels with text fields
+                yPos = 140 + ((i - 2) / 2) * 160;
             }
             labels[i].setBounds(xPos, yPos, 450, 50);
             labels[i].setFont(Constants.customFonts[0].deriveFont(size));
             labels[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
             tForm.add(labels[i]);
         }
-        submit.setBounds(610,430, 140, 50);
-        submit.setFont(Constants.customFonts[0].deriveFont(25f));
-        submit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
-        submit.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
-        submit.addActionListener(this);
-        tForm.add(submit);
+        playerFormSubmit.setBounds(610,430, 140, 50);
+        playerFormSubmit.setFont(Constants.customFonts[0].deriveFont(25f));
+        playerFormSubmit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
+        playerFormSubmit.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        playerFormSubmit.addActionListener(this);
+        tForm.add(playerFormSubmit);
 
         return tForm;
     }
@@ -163,17 +175,16 @@ public class Organizer extends JFrame implements ActionListener {
             "Player Counts"
         };
         JLabel[] labels = new JLabel[4];
-        JTextField[] inputFields = new JTextField[2];
-        JButton submit = new JButton("Submit");
+        teamFormSubmit = new JButton("Submit");
 
         tForm.setLayout(null);
-        for(int i = 0; i < inputFields.length; i++) {
+        for(int i = 0; i < teamInputFields.length; i++) {
             int yPos = 220 + (100 * i);
-            inputFields[i] = new JTextField();
-            inputFields[i].setFont(Constants.customFonts[1].deriveFont(20f));
-            inputFields[i].setBounds(250, yPos, 300, 40);
-            inputFields[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
-            tForm.add(inputFields[i]);
+            teamInputFields[i] = new JTextField();
+            teamInputFields[i].setFont(new Font("Arial", Font.PLAIN, 20));
+            teamInputFields[i].setBounds(250, yPos, 300, 40);
+            teamInputFields[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
+            tForm.add(teamInputFields[i]);
         }
 
         for(int i = 0; i < labels.length; i++) {
@@ -187,12 +198,12 @@ public class Organizer extends JFrame implements ActionListener {
             tForm.add(labels[i]);
         }
 
-        submit.setFont(Constants.customFonts[0].deriveFont(25f));
-        submit.setBounds(330,430, 140, 50);
-        submit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
-        submit.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
-        submit.addActionListener(this);
-        tForm.add(submit);
+        teamFormSubmit.setFont(Constants.customFonts[0].deriveFont(25f));
+        teamFormSubmit.setBounds(330,430, 140, 50);
+        teamFormSubmit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
+        teamFormSubmit.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        teamFormSubmit.addActionListener(this);
+        tForm.add(teamFormSubmit);
         return tForm;
     }
 

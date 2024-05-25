@@ -28,7 +28,12 @@ public class Login extends JFrame implements ActionListener {
     }
 
     private void initComponents() {      
-        String[] fields = {"Username*", "Password*", "WELCOME!", "Please enter your details below."};
+        String[] fields = {
+            "Username*", 
+            "Password*", 
+            "WELCOME!", 
+            "Please enter your details below."
+        };
         String[] descFields = {"TOURNAMENT", "MANAGEMENT", "SYSTEM"};
         for(int i = 0; i < loginFormFields.length; i++) {
             loginFormFields[i] = new JLabel(fields[i]);
@@ -79,11 +84,11 @@ public class Login extends JFrame implements ActionListener {
             loginForm.add(loginFormFields[i]);
         }
 
-        user.setFont(Constants.customFonts[1].deriveFont(20f));
+        user.setFont(new Font("Arial", Font.PLAIN, 20));
         user.setBounds(70, 190, 300, 40);
         user.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
 
-        pass.setFont(Constants.customFonts[1].deriveFont(20f));
+        pass.setFont(new Font("Arial", Font.PLAIN, 20));
         pass.setBounds(70, 280, 300, 40);
         pass.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
         pass.setEchoChar('*');
@@ -146,11 +151,29 @@ public class Login extends JFrame implements ActionListener {
 class Constants {
     public static final String ASSET_DIR = "Resources/";
     public static final int WIDTH = 900, HEIGHT = 500;
-    public static String[] ADMIN_CREDENTIALS = {"admin", "123"};
-    public static String[] OFFICIAL_CREDENTIALS = {"official", "123"};
-    public static String[] CUSTOM_COLORS = {"#262853", "#151139", "#00ECA4", "#e4e4e4", "#3E3E42"};
-    private static String[] FONT_STYLE_PATHS = {ASSET_DIR + "Fonts/HandoSoftTrial-Bold.ttf",
-    ASSET_DIR + "Fonts/HandoSoftTrial-Regular.ttf"};
+    public static final String[] TOURNAMENT_FORMATS = {
+        "Single Round Robin",
+        "Single Elimination"
+    };
+    public static String[] ADMIN_CREDENTIALS = {
+        "admin",
+        "123"
+    };
+    public static String[] OFFICIAL_CREDENTIALS = {
+        "official", 
+        "123"
+    };
+    public static String[] CUSTOM_COLORS = {
+        "#262853", 
+        "#151139", 
+        "#00ECA4", 
+        "#e4e4e4", 
+        "#3E3E42"
+    };
+    private static String[] FONT_STYLE_PATHS = {
+        ASSET_DIR + "Fonts/HandoSoftTrial-Bold.ttf",
+        ASSET_DIR + "Fonts/HandoSoftTrial-Regular.ttf"
+    };
     public static Font[] customFonts = new Font[FONT_STYLE_PATHS.length];
 
     public static void setCustomFont() {
