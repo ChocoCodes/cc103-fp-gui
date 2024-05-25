@@ -13,7 +13,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     private static FileOperations fileOp = new FileOperations();
 
     // Table Constants
-    private final int SP_TABLE_STARTING_X_POS = 10;
+    private final int SP_TABLE_STARTING_X_POS = 12;
     private final int SP_TABLE_STARTING_Y_POS = 70;
     private final int SP_TABLE_WIDTH = 790;
     private final int SP_TABLE_HEIGHT = 405;
