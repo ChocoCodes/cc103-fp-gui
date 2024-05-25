@@ -10,6 +10,7 @@ public class Organizer extends JFrame implements ActionListener {
     private JButton[] btns = new JButton[4];
     private JLabel[] adminLabels = new JLabel[2];
     private Image adminProfile;
+    private ImageIcon img;
 
     public Organizer() {
         initComponents();
@@ -38,6 +39,7 @@ public class Organizer extends JFrame implements ActionListener {
     }
 
     private void initComponents() {
+        img = new ImageIcon(Constants.ASSET_DIR + "kai-sotto.png");
         String[] btnLabel = {"HOME", "ADD TEAMS", "ADD PLAYERS", "LOGOUT"};
         adminProfile = new ImageIcon(Constants.ASSET_DIR + "caloocan.jpg").getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         cdl = new CardLayout();
@@ -53,13 +55,12 @@ public class Organizer extends JFrame implements ActionListener {
     private void setDashboard() {
         Color sideBarColor = Color.decode(Constants.CUSTOM_COLORS[1]),
         formsColor = Color.decode(Constants.CUSTOM_COLORS[0]);
-
         sideBar.setBounds(0, 0, 270, Constants.HEIGHT + 100);
         sideBar.setBackground(sideBarColor);
         sideBar.setLayout(null);
 
         for(int i = 0; i < forms.length; i++) {
-            forms[i] = (i == 0) ? new JPanel(cdl) : (i == 1) ? new JPanel() : setTeamForm();
+            forms[i] = (i == 0) ? new JPanel(cdl) : (i == 1) ? new JPanel() : (i == 2) ? setTeamForm() : setPlayerForm();
             forms[i].setBounds(270, 0, Constants.WIDTH, Constants.HEIGHT + 100);
             forms[i].setBackground(formsColor);
             if(i == 0) {
@@ -99,11 +100,68 @@ public class Organizer extends JFrame implements ActionListener {
         cdl.show(forms[0], "1");
         this.add(sideBar);
         this.add(forms[0]);
+        this.setIconImage(img.getImage());
+    }
+
+    private JPanel setPlayerForm() {
+        JPanel tForm = new JPanel();
+        JLabel[] labels = new JLabel[6];
+        JTextField[] inFields = new JTextField[3];
+        JButton submit = new JButton("Submit");
+        String[] displayLabels = {
+            "PLAYER DETAILS", 
+            "Please enter player information below. No duplicate players allowed.",
+            "Player First Name", 
+            "Player Last Name", 
+            "Player Team", 
+            "Player Jersey Number"
+        };
+        int xPos = 0, yPos = 0;
+        float size;
+
+        tForm.setLayout(null);
+        for(int i = 0; i < inFields.length; i++) {
+            xPos = (i % 2 == 0) ? 450 : 70;
+            yPos = (i == inFields.length - 1) ? 220 + 120 : 180;
+            inFields[i] = new JTextField();
+            inFields[i].setFont(Constants.customFonts[1].deriveFont(20f));
+            inFields[i].setBounds(xPos, yPos, 300, 40);
+            inFields[i].setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
+            tForm.add(inFields[i]);
+        }
+        for(int i = 0; i < labels.length; i++) {
+            size = (i == 0) ? 45f : (i == 1) ? 14f : 16f;
+            labels[i] = new JLabel(displayLabels[i]);
+            if(i < 2) {
+                xPos = 70;
+                yPos = (i == 0) ? 30 : 70;         
+            } else {
+                xPos = (i % 2 == 0) ? 70 : 450;
+                yPos = 140 + ((i - 2) / 2) * 160; // Align labels with text fields
+            }
+            labels[i].setBounds(xPos, yPos, 450, 50);
+            labels[i].setFont(Constants.customFonts[0].deriveFont(size));
+            labels[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+            tForm.add(labels[i]);
+        }
+        submit.setBounds(610,430, 140, 50);
+        submit.setFont(Constants.customFonts[0].deriveFont(25f));
+        submit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
+        submit.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        submit.addActionListener(this);
+        tForm.add(submit);
+
+        return tForm;
     }
 
     private JPanel setTeamForm() {
         JPanel tForm = new JPanel();
-        String[] displayLabels = {"TEAM DETAILS", "Please enter team information below. No duplicate teams allowed.", "Team Name", "Player Counts"};
+        String[] displayLabels = {
+            "TEAM DETAILS", 
+            "Please enter team information below. No duplicate teams allowed.", 
+            "Team Name", 
+            "Player Counts"
+        };
         JLabel[] labels = new JLabel[4];
         JTextField[] inputFields = new JTextField[2];
         JButton submit = new JButton("Submit");
@@ -133,6 +191,7 @@ public class Organizer extends JFrame implements ActionListener {
         submit.setBounds(330,430, 140, 50);
         submit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
         submit.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        submit.addActionListener(this);
         tForm.add(submit);
         return tForm;
     }
