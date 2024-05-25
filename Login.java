@@ -62,9 +62,9 @@ public class Login extends JFrame implements ActionListener {
 
         for(int i = 0; i < descriptionFields.length; i++) {
             int defaultYpos = 90 + (60 * i);
-            descriptionFields[i].setFont(Constants.customFonts[0].deriveFont(45f));
+            descriptionFields[i].setFont(Constants.customFonts[0].deriveFont(40f));
             descriptionFields[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
-            descriptionFields[i].setBounds(20, defaultYpos, 400, 50);
+            descriptionFields[i].setBounds(15, defaultYpos, 400, 50);
             descPanel.add(descriptionFields[i]);
         }
         
@@ -73,7 +73,7 @@ public class Login extends JFrame implements ActionListener {
         loginForm.setLayout(null);
 
         for(int i = 0; i < loginFormFields.length; i++) {
-            float size = (i == 2) ? 30f : (i == 3) ? 14f : 16f;
+            float size = (i == 2) ? 30f : (i == 3) ? 12f : 14f;
             int yPos = (i == 0) ? 160 : (i == 1) ? 250 : (i == 2) ? 70 : 100;
             int w = (i == 0 || i == 1) ? 200 : 400;
             int h = (i == 0 || i == 1) ? 35 : 50;
@@ -84,11 +84,11 @@ public class Login extends JFrame implements ActionListener {
             loginForm.add(loginFormFields[i]);
         }
 
-        user.setFont(new Font("Arial", Font.PLAIN, 20));
+        user.setFont(Constants.customFonts[1].deriveFont(20f));
         user.setBounds(70, 190, 300, 40);
         user.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
 
-        pass.setFont(new Font("Arial", Font.PLAIN, 20));
+        pass.setFont(Constants.customFonts[1].deriveFont(20f));
         pass.setBounds(70, 280, 300, 40);
         pass.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
         pass.setEchoChar('*');
@@ -120,7 +120,7 @@ public class Login extends JFrame implements ActionListener {
         String userInput = user.getText(), passInput = new String(pass.getPassword());
         boolean validAdminLogin = userInput.equals(Constants.ADMIN_CREDENTIALS[0]) && passInput.equals(Constants.ADMIN_CREDENTIALS[1]),
         validOrgLogin = userInput.equals(Constants.OFFICIAL_CREDENTIALS[0]) && passInput.equals(Constants.OFFICIAL_CREDENTIALS[1]);
-        if (userInput.length() == 0 || passInput.length() == 0 || (!validAdminLogin && !validOrgLogin)){
+        if (userInput.length() == 0 || passInput.length() == 0 || (!validAdminLogin && !validOrgLogin)) {
             new MessageBox("Invalid Username/Password. Please enter a valid/non-empty input/s.", JOptionPane.ERROR_MESSAGE);
             user.setText("");
             pass.setText("");
@@ -150,7 +150,11 @@ public class Login extends JFrame implements ActionListener {
 // Utility Class Constants for the whole program
 class Constants {
     public static final String ASSET_DIR = "Resources/";
+    public static final String DATA_DIR = "CSVFolder/";
+    public static final String TEAM_FILE = "Teams.csv";
     public static final int WIDTH = 900, HEIGHT = 500;
+    public static final int TEAM_FIELD_COUNTS = 5;
+    public static final int PLAYER_FIELD_COUNTS = 8;
     public static final String[] TOURNAMENT_FORMATS = {
         "Single Round Robin",
         "Single Elimination"
@@ -171,8 +175,8 @@ class Constants {
         "#3E3E42"
     };
     private static String[] FONT_STYLE_PATHS = {
-        ASSET_DIR + "Fonts/HandoSoftTrial-Bold.ttf",
-        ASSET_DIR + "Fonts/HandoSoftTrial-Regular.ttf"
+        ASSET_DIR + "Fonts/RobotoSerif-Bold.ttf",
+        ASSET_DIR + "Fonts/RobotoSerif-Regular.ttf"
     };
     public static Font[] customFonts = new Font[FONT_STYLE_PATHS.length];
 
