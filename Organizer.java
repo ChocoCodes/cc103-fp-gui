@@ -1,6 +1,5 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -17,28 +16,30 @@ public class Organizer extends JFrame implements ActionListener {
     private JButton playerFormSubmit, teamFormSubmit;
     private JTextField[] playerInputFields = new JTextField[3], teamInputFields = new JTextField[2];
     private int teamCounts = 0, playerCounts = 0;
-    private boolean connectedToCSV;
+    private boolean connectedToCSV, isValidFile;
     private Team[] teams = new Team[0];
     private DefaultTableModel tableModel;
     private JTable dashboardDataTable;
+    private JComboBox<String> selectionPopup;
+    private JScrollPane scrollPane;
 
     public Organizer() {
         setFrame();
-        initComponents();
-        Constants.setCustomFont();
-        setDashboard();
-        connectedToCSV = connectToCSVDB();
-        if(!connectedToCSV) {
+        isValidFile = fileOp.checkFileStructure(Constants.DATA_DIR + Constants.TEAM_FILE, Constants.TEAM_FIELD_COUNTS, 1);
+        connectedToCSV = connectToCSVDB() ;
+        if(!isValidFile || !connectedToCSV) {
             new MessageBox("Please manually check if the CSV File exists or is not corrupted.", JOptionPane.ERROR_MESSAGE);
+            dispose();
+            new Login();
         } else {
             teams = fileOp.extractTeamData(Constants.DATA_DIR + Constants.TEAM_FILE);
             if(teams.length == 0) {
                 new MessageBox("Please manually check your CSV File if corrupted or empty.", JOptionPane.ERROR_MESSAGE);
             }
-            for (Team t : teams) {
-                System.out.printf("%s, %d, %d, %d, %d\n", t.getTeamName(), t.getTeamID(), t.getPlayerCount(), t.getWins(), t.getLosses());
-            }
         }
+        initComponents();
+        Constants.setCustomFont();
+        setDashboard();
     }
 
     @Override
@@ -58,6 +59,9 @@ public class Organizer extends JFrame implements ActionListener {
         }
         if(ae.getSource() == teamFormSubmit) {
             System.out.println("Test Click!");
+        }
+        if(ae.getSource() == selectionPopup) {
+            System.out.println(selectionPopup.getSelectedItem())    ;
         }
     }
 
@@ -103,6 +107,11 @@ public class Organizer extends JFrame implements ActionListener {
         }
         for (int i = 0; i < adminLabels.length; i++) {
             adminLabels[i] = (i == 1) ? new JLabel("ADMIN") : new JLabel();
+        }
+        selectionPopup = new JComboBox<>();
+        for(int i = 0; i < teams.length; i++) {
+            System.out.printf("%s, %d, %d, %d, %d\n", teams[i].getTeamName(), teams[i].getTeamID(), teams[i].getPlayerCount(), teams[i].getWins(), teams[i].getLosses());
+            selectionPopup.addItem(teams[i].getTeamName());
         }
     }
 
@@ -163,8 +172,6 @@ public class Organizer extends JFrame implements ActionListener {
         JPanel tForm = new JPanel();
         JLabel[] labels = new JLabel[6];
         playerFormSubmit = new JButton("Submit");
-        JList<String> listBox;
-        DefaultListModel<String> listModel = new DefaultListModel<>();  
         String[] displayLabels = {
             "PLAYER DETAILS", 
             "Please enter player information below. No duplicate players allowed.",
@@ -202,17 +209,14 @@ public class Organizer extends JFrame implements ActionListener {
             tForm.add(labels[i]);
         }
 
-        for(int i = 0; i < teams.length; i++) {
-            listModel.addElement(teams[i].getTeamName());
-        }
-        listBox = new JList<>(listModel);
-        listBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        listBox.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
 
-        JScrollPane scrollPane = new JScrollPane(listBox);
-        scrollPane.setBounds(70, 180, 300, 80);
-        tForm.add(scrollPane);
-        
+        selectionPopup.setBounds(70, 340, 300, 40);
+        selectionPopup.setFont(Constants.customFonts[1].deriveFont(20f));
+        selectionPopup.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        selectionPopup.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        selectionPopup.addActionListener(this);
+        tForm.add(selectionPopup);
+
         playerFormSubmit.setBounds(610,430, 140, 50);
         playerFormSubmit.setFont(Constants.customFonts[0].deriveFont(25f));
         playerFormSubmit.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
@@ -312,14 +316,64 @@ public class Organizer extends JFrame implements ActionListener {
             dashBoard.add(dashBoardButtons[i]);
         }
 
-        tableModel = new DefaultTableModel(new String[]{"Team Name", "Team ID", "Player Counts", "Wins", "Losses"}, 0);
+        tableModel = new DefaultTableModel(Constants.DASHBOARD_COLUMNS, 0) {
+            // Override the DefaultTableModel to make all the cells non-editable
+            // Via StackOverflow at: https://tinyurl.com/nnsscb5d
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         dashboardDataTable = new JTable(tableModel);
-        dashboardDataTable.setAutoCreateRowSorter(false);
-        dashboardDataTable.getTableHeader().setReorderingAllowed(false);
-        
-        JScrollPane scrollPane = new JScrollPane(dashboardDataTable);
-        scrollPane.setBounds(0, 250, Constants.WIDTH - 85, (Constants.HEIGHT + 200) / 2);
+        scrollPane = new JScrollPane(dashboardDataTable);
+        loadDataToTable();
+        styleTable();
         dashBoard.add(scrollPane, BorderLayout.CENTER);
         return dashBoard;
     }
+
+    private void styleTable() {
+        // Header Styles
+        JTableHeader header = dashboardDataTable.getTableHeader();
+        header.setBackground(new Color(38,40,83));
+        header.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        header.setFont(Constants.customFonts[1].deriveFont(20f));
+        header.setBorder(BorderFactory.createEmptyBorder());
+        header.setPreferredSize(new Dimension(0, 40));
+        // Table Styles
+        dashboardDataTable.setBackground(new Color(55,58,99));
+        dashboardDataTable.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        dashboardDataTable.setShowGrid(false);
+        dashboardDataTable.setRowHeight(40);
+        dashboardDataTable.setFont(Constants.customFonts[1].deriveFont(16f));
+        dashboardDataTable.setBorder(BorderFactory.createEmptyBorder());
+        dashboardDataTable.setSelectionBackground(new Color(77, 81, 125));
+        dashboardDataTable.setSelectionForeground(new Color(220,220,220));
+        // Center table data
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < dashboardDataTable.getColumnCount(); i++) {
+            dashboardDataTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+        // Scroll Pane Styles
+        scrollPane.setBounds(0, 250, Constants.WIDTH - 85, (Constants.HEIGHT + 200) / 2);
+        scrollPane.getViewport().setBackground(Color.decode(Constants.CUSTOM_COLORS[0]));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+    }
+
+
+    private void loadDataToTable() {
+        tableModel.setRowCount(0);
+        for(int i = 0; i < teams.length; i++) {
+            Object[] rowData = {
+                teams[i].getTeamName(),
+                teams[i].getTeamID(),
+                teams[i].getPlayerCount(),
+                teams[i].getWins(),
+                teams[i].getLosses()
+            };
+            tableModel.addRow(rowData);
+        }
+    }
+
 }
