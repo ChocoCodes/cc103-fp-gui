@@ -8,8 +8,9 @@ import java.io.*;
 public class Login extends JFrame implements ActionListener {
     // Components for the Login
     private JPanel titlePanel, loginForm, descPanel;
-    private JLabel[] loginFormFields = new JLabel[4];
-    private JLabel[]  descriptionFields = new JLabel[3];
+    private JLabel[] icons = new JLabel[3],
+    loginFormFields = new JLabel[4],
+    descriptionFields = new JLabel[3];
     private JTextField user;
     private JPasswordField pass;
     private JButton authBtn;

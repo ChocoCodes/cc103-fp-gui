@@ -39,12 +39,15 @@ public class FileOperations {
     }
 
     public boolean checkDuplicates(String input, Player[] players) {
+        if(players.length == 0) {
+            return false;
+        }
         for(int i = 0; i < players.length; i++) {
             if(players[i].getPlayerJerseyNum().equals(input)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean writeToCSVFile(Player player, String fpath, boolean append) {
@@ -80,6 +83,9 @@ public class FileOperations {
             while ((line = fin.readLine()) != null) {
                 // Split CSV Data and load into team list using constructors
                 String[] tmp = line.split(",");
+                if(tmp.length != 8) {
+                    continue;
+                }
                 // Assuming the CSV format is: Name,ID,PlayerCounts,Wins,Losses
                 Player player = new Player(tmp[0], tmp[1], tmp[2], Integer.parseInt(tmp[3]), Integer.parseInt(tmp[4]),
                 Integer.parseInt(tmp[5]), Integer.parseInt(tmp[6]), Integer.parseInt(tmp[7]));

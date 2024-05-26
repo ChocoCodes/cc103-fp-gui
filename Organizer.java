@@ -118,7 +118,6 @@ public class Organizer extends JFrame implements ActionListener {
         }
     }
 
-
     private void handlePlayerFormSubmission(int idx) {
         boolean areValidInputs, fileSaved = false;
         int defaultValue = 0;
@@ -138,8 +137,9 @@ public class Organizer extends JFrame implements ActionListener {
             players = fileOp.extractPlayerData(filePath);
         }
         int pCountListed = team.getPlayerCount();
+        System.out.println(pCountListed);
         areValidInputs = validateFormInputs(playerInputFields, idx, 'P');
-        if (areValidInputs && players.length <= pCountListed) {
+        if (areValidInputs && players.length < pCountListed) {
             String fName = playerInputFields[0].getText().toString();
             String lName = playerInputFields[1].getText().toString();
             String jersey = playerInputFields[2].getText().toString();
@@ -148,9 +148,13 @@ public class Organizer extends JFrame implements ActionListener {
             fileSaved = fileOp.writeToCSVFile(player, filePath, append);
             if(fileSaved) {
                 new MessageBox("Player added to team. CSV file updated successfully.", JOptionPane.INFORMATION_MESSAGE);
+                resetInputFields(playerInputFields);
             } else {
                 new MessageBox("An error occured while saving data to the CSV File.", JOptionPane.ERROR_MESSAGE);                 
             }  
+        } else {
+            new MessageBox("Team is already full. Cannot process your information", JOptionPane.ERROR_MESSAGE);
+            resetInputFields(playerInputFields);
         }
     }
 
@@ -403,13 +407,12 @@ public class Organizer extends JFrame implements ActionListener {
                 String filePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + selectedTeam + ".csv";
                 String jNum = inputs[2].getText().toString();
                 players = fileOp.extractPlayerData(filePath);
-                if(players.length == 0) {
-                    return true;
-                }
+                System.out.println(players.length);
                 boolean duplicateJerseyNumber = fileOp.checkDuplicates(jNum, players);
                 if(duplicateJerseyNumber) {
                     inputs[2].setText("");
                     new MessageBox("No duplicate jersey numbers allowed.", JOptionPane.ERROR_MESSAGE);
+                    return false;
                 }
                 break;
         }
