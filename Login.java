@@ -149,25 +149,37 @@ public class Login extends JFrame implements ActionListener {
 
 // Utility Class Constants for the whole program
 class Constants {
+
     public static final String ASSET_DIR = "Resources/";
     public static final String DATA_DIR = "CSVFolder/";
+    public static final String SCHEDULES_DIR = "Schedules/";
     public static final String TEAM_FILE = "Teams.csv";
+    public static final String RR_FILE = "RoundRobinSchedule.csv";
+    public static final String SE_FILE = "SingleEliminationSchedule.csv";
+    
     public static final int WIDTH = 900, HEIGHT = 500;
-    public static final String[] DASHBOARD_COLUMNS = {"Team Name", "Team ID", "Player Counts", "Wins", "Losses"};
     public static final int TEAM_FIELD_COUNTS = 5;
     public static final int PLAYER_FIELD_COUNTS = 8;
     public static final int MIN_PLAYERS = 5;
     public static final int MAX_PLAYERS = 18;
     public static final int MIN_TEAMS = 8;
+
+    public static final String[] DASHBOARD_COLUMNS = {
+        "Team Name", 
+        "Team ID", 
+        "Player Counts", 
+        "Wins", 
+        "Losses"
+    };
     public static final String[] TOURNAMENT_FORMATS = {
         "Single Round Robin",
         "Single Elimination"
     };
-    public static String[] ADMIN_CREDENTIALS = {
+    public static final String[] ADMIN_CREDENTIALS = {
         "admin",
         "123"
     };
-    public static String[] OFFICIAL_CREDENTIALS = {
+    public static final String[] OFFICIAL_CREDENTIALS = {
         "official", 
         "123"
     };

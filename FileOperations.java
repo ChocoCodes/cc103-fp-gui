@@ -98,6 +98,28 @@ public class FileOperations {
         return true;
     }
 
+    public boolean checkIfFileExists(String fPath) {
+        File file = new File(fPath);
+        return file.exists();
+    }
+
+    public boolean writeToCSVFile(String fPath, String[] matchList) {
+        try (PrintWriter fout = new PrintWriter(new FileWriter(fPath))) {
+            fout.println("Team A,Team B,Match Day");
+                int matchCount = 1;
+                for (int i = 0; i < matchList.length; i++) {
+                    String[] teamVersus = matchList[i].split(" ");
+                    String team1 = teamVersus[0];
+                    String team2 = teamVersus[2];
+                    fout.printf("%s,%s,Match %d\n", team1, team2, matchCount);
+                    matchCount++;
+                }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     public boolean saveToCSV(Team[] teams, String fPath) {
         try (PrintWriter fout = new PrintWriter(new FileWriter(fPath))) {
