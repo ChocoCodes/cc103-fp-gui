@@ -38,7 +38,38 @@ public class FileOperations {
         return true;
     }
 
+    public boolean checkDuplicates(String input, Player[] players) {
+        for(int i = 0; i < players.length; i++) {
+            if(players[i].getPlayerJerseyNum().equals(input)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    public boolean writeToCSVFile(Player player, String fpath, boolean append) {
+        try (PrintWriter fout = new PrintWriter(new FileWriter(fpath, append))) {
+            if(!append) {
+                fout.println("First Name,Last Name,Jersey Number");
+            }
+            fout.printf(
+                "%s,%s,%s,%d,%d,%d,%d,%d\n", 
+                player.getPlayerFirstName(), 
+                player.getPlayerLastName(), 
+                player.getPlayerJerseyNum(),
+                player.getPoints(),
+                player.getRebounds(),
+                player.getAssists(),
+                player.getBlocks(),
+                player.getSteals()
+            );
+            fout.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     public Player[] extractPlayerData(String fpath) {
         // Use ArrayList to dynamically add teams

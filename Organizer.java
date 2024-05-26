@@ -25,6 +25,7 @@ public class Organizer extends JFrame implements ActionListener {
     private JComboBox<String> selectionPopup, popupOptions;
     private JScrollPane scrollPane;
     private char currentOperation = ' ';
+    private String selectedTeam = "";
 
     public Organizer() {
         setFrame();
@@ -44,10 +45,39 @@ public class Organizer extends JFrame implements ActionListener {
         setDashboard();
     }
 
+    private void setFrame() {
+        setTitle("Organizer Dashboard");
+        setSize(Constants.WIDTH + 200, Constants.HEIGHT + 100);
+        setLayout(null);
+        setResizable(false);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    private void initComponents() {
+        img = new ImageIcon(Constants.ASSET_DIR + "kai-sotto.png");
+        String[] btnLabel = {
+            "HOME", 
+            "ADD TEAMS", 
+            "ADD PLAYERS", 
+            "LOGOUT"
+        };
+        adminProfile = new ImageIcon(Constants.ASSET_DIR + "caloocan.jpg").getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        cdl = new CardLayout();
+        sideBar = new JPanel(); 
+        for (int i = 0; i < sideBarBtns.length; i++) {
+            sideBarBtns[i] = new JButton(btnLabel[i]);
+        }
+        for (int i = 0; i < adminLabels.length; i++) {
+            adminLabels[i] = (i == 1) ? new JLabel("ADMIN") : new JLabel();
+        }
+        selectionPopup = new JComboBox<>();
+    }
+
     @Override
     public void actionPerformed(ActionEvent ae) {
-        boolean areValidInputs, fileSaved = false;
-        int idx = 0, defaultValue = 0;
+        int idx = 0;
 
         if(ae.getSource() == sideBarBtns[sideBarBtns.length - 1]) {
             new MessageBox("Thanks for using the system!", 1);
@@ -63,37 +93,12 @@ public class Organizer extends JFrame implements ActionListener {
 
         if(ae.getSource() == playerFormSubmit) {
             idx = 2;
-            String selectedTeam = selectionPopup.getSelectedItem().toString();
-            String filePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + selectedTeam + ".csv";
-            boolean fileExists = fileOp.checkIfFileExists(filePath);
-            if (fileExists) {
-                players = fileOp.extractPlayerData(filePath);
-            } 
-            areValidInputs = validateFormInputs(playerInputFields, idx, 'P');
-            if(areValidInputs) {
-                boolean append = players.length > 0;
-                // Save to CSV
-            } 
+            handlePlayerFormSubmission(idx);
         }
 
         if(ae.getSource() == teamFormSubmit) {
             idx = 1;
-            areValidInputs = validateFormInputs(teamInputFields, idx, 'T');
-            if(areValidInputs) {
-                int newID = generateTeamID();
-                String teamName = teamInputFields[0].getText();
-                int playerCount = Integer.parseInt(teamInputFields[1].getText());
-                Team newTeam = new Team(teamName, newID, playerCount, defaultValue, defaultValue);
-                fileSaved = fileOp.saveToCSV(Constants.DATA_DIR + Constants.TEAM_FILE, newTeam);
-                if(!fileSaved) {
-                    new MessageBox("An error occured when saving the file.", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    new MessageBox("New Team Created. File saved successfully.", JOptionPane.INFORMATION_MESSAGE);
-                }
-                teamCounts++;
-                playerCounts += playerCount;
-                updateComponents(teamName);
-            }
+            handleTeamFormSubmission(idx);
         }
 
         char flag = ' ';
@@ -109,38 +114,98 @@ public class Organizer extends JFrame implements ActionListener {
         }
         
         if(ae.getSource() == popupBtn) {
-            switch (currentOperation) {
-                case 'D':   
-                    String teamToDelete = popupOptions.getSelectedItem().toString();
-                    boolean teamDeleted = deleteTeamRecord(teamToDelete);
-                    if(!teamDeleted) {
-                        new MessageBox("Failed to delete team " + teamToDelete + ". Please check the CSV File.", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        new MessageBox("Team deleted successfully. Updated CSV File.", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                    break;
-                case 'G':
-                    boolean isValidTeamCount = checkMinimumTeamCount(teams),
-                    roundRobinGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE), 
-                    eliminationGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE);
-                    if(!isValidTeamCount) {
-                        new MessageBox("Minimum Team Counts should be " + Constants.MIN_TEAMS + " before generating.", JOptionPane.ERROR_MESSAGE);
-                    }
-                    if(roundRobinGenerated && eliminationGenerated) {
-                        new MessageBox("Tournament format/s already generated.", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        String tournamentFormat = popupOptions.getSelectedItem().toString();
-                        if(tournamentFormat.equals(Constants.TOURNAMENT_FORMATS[0])) {
-                            generateRoundRobin(teams);
-                        } else {
-                            generateSingleElimination(teams);
-                        }
-                    }
-                    break;
-            }
+            handlePopupOperations();
         }
     }
-    
+
+
+    private void handlePlayerFormSubmission(int idx) {
+        boolean areValidInputs, fileSaved = false;
+        int defaultValue = 0;
+
+        selectedTeam = selectionPopup.getSelectedItem().toString();
+        String filePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + selectedTeam + ".csv";
+        boolean fileExists = fileOp.checkIfFileExists(filePath);
+        players = new Player[0];
+        Team team = new Team();
+        for(int i = 0; i < teams.length; i++) {
+            if(selectedTeam.equals(teams[i].getTeamName())) {
+                team = teams[i];
+                break;
+            }
+        }
+        if (fileExists) {
+            players = fileOp.extractPlayerData(filePath);
+        }
+        int pCountListed = team.getPlayerCount();
+        areValidInputs = validateFormInputs(playerInputFields, idx, 'P');
+        if (areValidInputs && players.length <= pCountListed) {
+            String fName = playerInputFields[0].getText().toString();
+            String lName = playerInputFields[1].getText().toString();
+            String jersey = playerInputFields[2].getText().toString();
+            Player player = new Player(fName, lName, jersey, defaultValue, defaultValue, defaultValue, defaultValue, defaultValue);
+            boolean append = players.length > 0;
+            fileSaved = fileOp.writeToCSVFile(player, filePath, append);
+            if(fileSaved) {
+                new MessageBox("Player added to team. CSV file updated successfully.", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                new MessageBox("An error occured while saving data to the CSV File.", JOptionPane.ERROR_MESSAGE);                 
+            }  
+        }
+    }
+
+    private void handleTeamFormSubmission(int idx) {
+        int defaultValue = 0;
+        boolean areValidInputs = validateFormInputs(teamInputFields, idx, 'T');
+        if(areValidInputs) {
+            int newID = generateTeamID();
+            String teamName = teamInputFields[0].getText();
+            int playerCount = Integer.parseInt(teamInputFields[1].getText());
+            Team newTeam = new Team(teamName, newID, playerCount, defaultValue, defaultValue);
+            boolean fileSaved = fileOp.saveToCSV(Constants.DATA_DIR + Constants.TEAM_FILE, newTeam);
+            if(!fileSaved) {
+                new MessageBox("An error occured when saving the file.", JOptionPane.ERROR_MESSAGE);
+            } else {
+                new MessageBox("New Team Created. File saved successfully.", JOptionPane.INFORMATION_MESSAGE);
+            }
+            teamCounts++;
+            playerCounts += playerCount;
+            updateComponents(teamName);
+        }
+    }
+
+    private void handlePopupOperations() {
+        switch (currentOperation) {
+            case 'D':   
+                String teamToDelete = popupOptions.getSelectedItem().toString();
+                boolean teamDeleted = deleteTeamRecord(teamToDelete);
+                if(!teamDeleted) {
+                    new MessageBox("Failed to delete team " + teamToDelete + ". Please check the CSV File.", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    new MessageBox("Team deleted successfully. Updated CSV File.", JOptionPane.INFORMATION_MESSAGE);
+                }
+                break;
+            case 'G':
+                boolean isValidTeamCount = checkMinimumTeamCount(teams),
+                roundRobinGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE), 
+                eliminationGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE);
+                if(!isValidTeamCount) {
+                    new MessageBox("Minimum Team Counts should be " + Constants.MIN_TEAMS + " before generating.", JOptionPane.ERROR_MESSAGE);
+                }
+                if(roundRobinGenerated && eliminationGenerated) {
+                    new MessageBox("Tournament format/s already generated.", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    String tournamentFormat = popupOptions.getSelectedItem().toString();
+                    if(tournamentFormat.equals(Constants.TOURNAMENT_FORMATS[0])) {
+                        generateRoundRobin(teams);
+                    } else {
+                        generateSingleElimination(teams);
+                    }
+                }
+                break;
+        }
+    }
+
     private void generateSingleElimination(Team[] teams) {
         if (!checkforEvenTeamCount(teams)) {
             new MessageBox("Please ensure that you have an even count of teams.", JOptionPane.ERROR_MESSAGE);
@@ -335,40 +400,20 @@ public class Organizer extends JFrame implements ActionListener {
                 }
                 break;
             case 'P':
-                // String fName = inputs[0].getText(), lName = inputs[1].getText();
+                String filePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + selectedTeam + ".csv";
+                String jNum = inputs[2].getText().toString();
+                players = fileOp.extractPlayerData(filePath);
+                if(players.length == 0) {
+                    return true;
+                }
+                boolean duplicateJerseyNumber = fileOp.checkDuplicates(jNum, players);
+                if(duplicateJerseyNumber) {
+                    inputs[2].setText("");
+                    new MessageBox("No duplicate jersey numbers allowed.", JOptionPane.ERROR_MESSAGE);
+                }
                 break;
         }
         return true;
-    }
-
-    private void setFrame() {
-        setTitle("Organizer Dashboard");
-        setSize(Constants.WIDTH + 200, Constants.HEIGHT + 100);
-        setLayout(null);
-        setResizable(false);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
-    }
-
-    private void initComponents() {
-        img = new ImageIcon(Constants.ASSET_DIR + "kai-sotto.png");
-        String[] btnLabel = {
-            "HOME", 
-            "ADD TEAMS", 
-            "ADD PLAYERS", 
-            "LOGOUT"
-        };
-        adminProfile = new ImageIcon(Constants.ASSET_DIR + "caloocan.jpg").getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        cdl = new CardLayout();
-        sideBar = new JPanel(); 
-        for (int i = 0; i < sideBarBtns.length; i++) {
-            sideBarBtns[i] = new JButton(btnLabel[i]);
-        }
-        for (int i = 0; i < adminLabels.length; i++) {
-            adminLabels[i] = (i == 1) ? new JLabel("ADMIN") : new JLabel();
-        }
-        selectionPopup = new JComboBox<>();
     }
 
     private int getTotalPlayerCounts() {
@@ -499,7 +544,6 @@ public class Organizer extends JFrame implements ActionListener {
         playerFormSubmit.setFocusPainted(false);
         playerFormSubmit.addActionListener(this);
         tForm.add(playerFormSubmit);
-
         return tForm;
     }
 

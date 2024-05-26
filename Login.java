@@ -55,7 +55,7 @@ public class Login extends JFrame implements ActionListener {
         ImageIcon img = new ImageIcon(Constants.ASSET_DIR + "kai-sotto.png");
         descPanel.setLayout(null);
         descPanel.setBounds(45,70, Constants.WIDTH - 550, Constants.HEIGHT - 150);
-        descPanel.setBackground(formColor);
+        descPanel.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
 
         titlePanel.setBounds(0,0, Constants.WIDTH / 2, Constants.HEIGHT);
         titlePanel.setBackground(bgColor);
@@ -63,7 +63,7 @@ public class Login extends JFrame implements ActionListener {
         for(int i = 0; i < descriptionFields.length; i++) {
             int defaultYpos = 90 + (60 * i);
             descriptionFields[i].setFont(Constants.customFonts[0].deriveFont(40f));
-            descriptionFields[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+            descriptionFields[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[0]));
             descriptionFields[i].setBounds(15, defaultYpos, 400, 50);
             descPanel.add(descriptionFields[i]);
         }
