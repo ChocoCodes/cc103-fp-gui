@@ -6,6 +6,7 @@ public class Team {
     private int losses;
     
     // Team Constructor
+    public Team() {}
     public Team(String teamName, int teamId, int playerCount, int wins, int losses) {
         this.teamName = teamName;
         this.teamId = teamId;
