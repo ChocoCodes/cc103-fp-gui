@@ -3,11 +3,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class TableOfficial extends JFrame implements ActionListener {
@@ -74,7 +69,7 @@ public class TableOfficial extends JFrame implements ActionListener {
         System.out.println("Single Round Robin Button Pressed");
 
         //FILEPATH METHODS
-        String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE; // TODO  Update with the correct path
+        String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE; //
         String[][] data = fileOp.readCSVDataSchedules(csvFilePath);
         String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."}; 
 
@@ -95,7 +90,7 @@ public class TableOfficial extends JFrame implements ActionListener {
         System.out.println("Single Elimination Button Pressed");
 
         //FILEPATH METHODS
-        String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE; // TODO  Update with the correct path
+        String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE;
         String[][] data = fileOp.readCSVDataSchedules(csvFilePath);
         String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."}; 
     
@@ -123,9 +118,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                 String cellValueString = String.valueOf(table.getValueAt(selectedRow, selectedColumn));
                 forms.removeAll();
 
-                String csvFilePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + cellValueString + ".csv"; // TODO  Update with the correct path
-                //TODO Read CSV of Players from the specific team
-                //File path  CSVFolders\\Stats\\filename
+                String csvFilePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + cellValueString + ".csv";
                 String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
                 
                 String[][] tempData = fileOp.readCSVPlayerData(csvFilePath); 
@@ -558,7 +551,8 @@ public class TableOfficial extends JFrame implements ActionListener {
                 Font customFont = Constants.customFonts[0];
                 String fontStyle = customFont.getName() + ", " + customFont.getStyle();
                 String fontSize = "30";
-                tableOfficialLabels[i].setText("<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + fontSize + "pt; text-align: center;'>TABLE<br>OFFICIAL</body></html>"); 
+                tableOfficialLabels[i].setText("<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + fontSize + 
+                "pt; text-align: center;'>TABLE<br>OFFICIAL</body></html>"); 
                 tableOfficialLabels[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
                 tableOfficialLabels[i].setBounds(60, 130, 250, 90); 
             }
@@ -594,8 +588,10 @@ public class TableOfficial extends JFrame implements ActionListener {
         String fontStyle = customFont.getName() + ", " + customFont.getStyle();
         String fontSize = "30";
         String[] btnLabel = {
-                "<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + fontSize + "pt; text-align: center;'>SINGLE<br>ROUND ROBIN</body></html>",
-                "<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + fontSize + "pt; text-align: center;'>SINGLE<br>ELIMINATION</body></html>",
+                "<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + 
+                fontSize + "pt; text-align: center;'>SINGLE<br>ROUND ROBIN</body></html>",
+                "<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + 
+                fontSize + "pt; text-align: center;'>SINGLE<br>ELIMINATION</body></html>",
                 "LOGOUT"
         };
 

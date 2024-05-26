@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.Random;
 
 public class Organizer extends JFrame implements ActionListener {
-    private FileOperations fileOp = new FileOperations();
+    private FileOperations fileOp = new FileOperations(); // File Handler
     private CardLayout cdl;
     private JPanel sideBar;
     private JPanel[] forms = new JPanel[4];
@@ -18,7 +18,8 @@ public class Organizer extends JFrame implements ActionListener {
     private JTextField[] playerInputFields = new JTextField[3], teamInputFields = new JTextField[2];
     private int teamCounts = 0, playerCounts = 0;
     private boolean connectedToCSV;
-    private Team[] teams = new Team[0];
+    private Team[] teams = new Team[0]; // Data Handler
+    private Player[] players = new Player[0];
     private DefaultTableModel tableModel;
     private JTable dashboardDataTable;
     private JComboBox<String> selectionPopup, popupOptions;
@@ -63,8 +64,14 @@ public class Organizer extends JFrame implements ActionListener {
         if(ae.getSource() == playerFormSubmit) {
             idx = 2;
             String selectedTeam = selectionPopup.getSelectedItem().toString();
+            String filePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + selectedTeam + ".csv";
+            boolean fileExists = fileOp.checkIfFileExists(filePath);
+            if (fileExists) {
+                players = fileOp.extractPlayerData(filePath);
+            } 
             areValidInputs = validateFormInputs(playerInputFields, idx, 'P');
             if(areValidInputs) {
+                boolean append = players.length > 0;
                 // Save to CSV
             } 
         }
@@ -277,7 +284,6 @@ public class Organizer extends JFrame implements ActionListener {
         return true;
     }
 
-
     private void resetInputFields(JTextField[] inputs) {
         for(int i = 0; i < inputs.length; i++) {
             inputs[i].setText("");
@@ -328,6 +334,9 @@ public class Organizer extends JFrame implements ActionListener {
                     return false;
                 }
                 break;
+            case 'P':
+                // String fName = inputs[0].getText(), lName = inputs[1].getText();
+                break;
         }
         return true;
     }
@@ -369,6 +378,7 @@ public class Organizer extends JFrame implements ActionListener {
         }
         return total;
     }
+
 
     private void setSelections() {
         for(int i = 0; i < teams.length; i++) {
@@ -628,7 +638,6 @@ public class Organizer extends JFrame implements ActionListener {
         scrollPane.getViewport().setBackground(Color.decode(Constants.CUSTOM_COLORS[0]));
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
     }
-
 
     private void loadDataToTable() {
         tableModel.setRowCount(0);

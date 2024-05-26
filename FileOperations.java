@@ -38,6 +38,31 @@ public class FileOperations {
         return true;
     }
 
+
+
+    public Player[] extractPlayerData(String fpath) {
+        // Use ArrayList to dynamically add teams
+        List<Player> playerList = new ArrayList<>(); 
+        String line;
+        try (BufferedReader fin = new BufferedReader(new FileReader(fpath))) {
+            if ((line = fin.readLine()) != null) {} // Skip Header
+            while ((line = fin.readLine()) != null) {
+                // Split CSV Data and load into team list using constructors
+                String[] tmp = line.split(",");
+                // Assuming the CSV format is: Name,ID,PlayerCounts,Wins,Losses
+                Player player = new Player(tmp[0], tmp[1], tmp[2], Integer.parseInt(tmp[3]), Integer.parseInt(tmp[4]),
+                Integer.parseInt(tmp[5]), Integer.parseInt(tmp[6]), Integer.parseInt(tmp[7]));
+                playerList.add(player);
+            }
+            fin.close();
+        } catch(IOException e) {
+            return new Player[0];
+        }
+        // Convert list to array
+        Player[] players = playerList.toArray(new Player[0]);
+        return players;
+    }
+
     public Team[] extractTeamData(String fpath) {
         // Use ArrayList to dynamically add teams
         List<Team> teamList = new ArrayList<>(); 
