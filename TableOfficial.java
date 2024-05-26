@@ -1,11 +1,13 @@
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicScrollBarUI;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class TableOfficial extends JFrame implements ActionListener {
@@ -28,8 +30,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     private final int GAME_REPORT_BTN_X = 450;
     private final int GAME_REPORT_BTN_Y = 500;
     private final int PLAYER_STATS_BTN_X = 610;
-    private final int PLAYER_STATS_BTN_Y = 500;
-    private final int APPLY_BTN_X = 290;
+    private final int PLAYER_STATS_BTN_Y = 500;   
 
     //Table Title
     private final int TABLE_TITLE_Y = 20;
@@ -72,37 +73,144 @@ public class TableOfficial extends JFrame implements ActionListener {
     private void setupSingleRoundRobinTable() {
         System.out.println("Single Round Robin Button Pressed");
 
-        //TODO Read CSV Contents
-        String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."};
-        String[][] data = {
-            {"TEAM A", "TEAM B", "1"},
-            {"TEAM C", "TEAM D", "2"}
-        };
-        
+        //FILEPATH METHODS
+        String csvFilePath = "CSVFolders\\Schedules\\roundRobinSchedules.csv"; // TODO  Update with the correct path
+        String[][] data = readCSVDataSchedules(csvFilePath);
+        String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."}; 
+
         table = createTable(data, columnNames);
         JScrollPane sp = createScrollPane(table);
-
         forms.removeAll();
-        
         JLabel tableTitle = createTableTitle("SINGLE ROUND ROBIN - FORMAT");
+
+        addButtons(); 
+        
         forms.add(tableTitle);
-
-        addButtons();
-
         forms.add(sp);
         forms.revalidate();
         forms.repaint();
     }
 
+    //TODO move to fileOperations class later 
+    //FILEPATHOPERATIONS
+    private String[][] readCSVDataSchedules(String filePath) {
+        ArrayList<String[]> rows = new ArrayList<>(); 
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Skip the header line
+                if (!line.startsWith("Team 1")) {
+                    rows.add(line.split(",")); 
+                }
+            }
+        } catch (IOException e) {
+            new MessageBox("ERROR: Could not read CSV file.", 0);
+            return null;
+        }
+        return rows.toArray(new String[0][]); 
+    }
+
+    //FILEPATHOPERATIONS
+    private String[][] readCSVPlayerData(String filePath) {
+        ArrayList<String[]> rows = new ArrayList<>(); 
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Skip the header line
+                if (!line.startsWith("PLAYER")) {
+                    rows.add(line.split(", ")); 
+                }
+            }
+        } catch (IOException e) {
+            new MessageBox("ERROR: Could not read CSV file.", 0);
+            return null;
+        }
+        return rows.toArray(new String[0][]); 
+    }
+
+    //FILEPATHOPERATIONS
+    private void writePlayerStatsToCSV(String[][] playerStats, String[] columnHeaders, String filePath) {
+        try {
+            FileWriter output = new FileWriter(filePath);
+
+            for (int i = 0; i < columnHeaders.length; i++) {
+                output.write(columnHeaders[i]);
+                if (i < columnHeaders.length - 1) {
+                    output.write(","); 
+                }
+            }
+            output.write("\n");
+    
+            for (int i = 0; i < playerStats.length; i++) {
+                for (int j = 0; j < playerStats[i].length; j++) {
+                    if (j == playerStats[i].length - 1) {
+                        output.write(playerStats[i][j]);
+                    } else {
+                        output.write(playerStats[i][j] + ", ");
+                    }
+                }
+                output.write("\n");
+            }
+    
+            new MessageBox("Player Stats saved to CSV successfully", 1);
+            output.close();
+        } catch (Exception e) {
+            new MessageBox("Unable to write Player Stats file to CSV", 0);
+        }
+    }
+
+    //FILEPATHOPERATIONS
+    public void writeGameReportToCSV(String[] team1, String[] team2, String[] overallMatchStats) {
+        String filePath = "CSVFolders\\Stats\\" + overallMatchStats[0] + "VS" + overallMatchStats[1] + ".csv"; //Change later to actual file path
+        String[] columnHeaders = {
+                "TEAM NAME 1", "TEAM NAME 2", "TOTAL POINTS", "LONGEST LEAD", "TOTAL REBOUNDS", 
+                "TOTAL BLOCKS", "TOTAL STEALS", "TOTAL ASSISTS",  "TEAM 1 SCORE", "TEAM 2 SCORE", "WINNER"
+        };
+    
+        String[] teamStatHeaders = {
+                "TEAM NAME", "Q1 SCORE","Q2 SCORE","Q3 SCORE","Q4 SCORE", 
+                "TEAM REBOUNDS", "TEAM BLOCKS", "TEAM STEALS", "TEAM ASSISTS"
+        };
+     
+        try (FileWriter writer = new FileWriter(filePath)) {
+    
+            writeLine(writer, columnHeaders);
+    
+            writeLine(writer, overallMatchStats);
+            
+            writer.write("\n");
+    
+            writeLine(writer, teamStatHeaders);
+            
+            writer.write(overallMatchStats[0] + ",");  // Team 1 name
+            writeLine(writer, team1);
+            
+            writer.write(overallMatchStats[1] + ",");  // Team 2 name
+            writeLine(writer, team2);
+    
+            new MessageBox("Game Report saved to CSV successfully", 1);
+        } catch (IOException e) {
+            new MessageBox("Unable to write Game Report file to CSV", 0);
+        }
+    }
+    
+    private void writeLine(FileWriter writer, String[] data) throws IOException {
+        for (int i = 0; i < data.length; i++) {
+            writer.write(data[i]);
+            if (i < data.length - 1) {
+                writer.write(",");
+            }
+        }
+        writer.write("\n");
+    }
+
     private void setupSingleEliminationTable() {
         System.out.println("Single Elimination Button Pressed");
 
-        //TODO Read CSV Contents
-        String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."};
-        String[][] data = {
-            {"TEAM A", "TEAM B", "1"},
-            {"TEAM C", "TEAM D", "2"}
-        };
+        //FILEPATH METHODS
+        String csvFilePath = "CSVFolders\\Schedules\\singleEliminationSchedules.csv"; // TODO  Update with the correct path
+        String[][] data = readCSVDataSchedules(csvFilePath);
+        String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."}; 
     
         table = createTable(data, columnNames);
         JScrollPane sp = createScrollPane(table);
@@ -128,22 +236,32 @@ public class TableOfficial extends JFrame implements ActionListener {
                 String cellValueString = String.valueOf(table.getValueAt(selectedRow, selectedColumn));
                 forms.removeAll();
 
+                String csvFilePath = "CSVFolders\\Players\\" + cellValueString + ".csv"; // TODO  Update with the correct path
+                //TODO Read CSV of Players from the specific team
+                //File path  CSVFolders\\Stats\\filename
                 String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
-                String[][] data = {
-                    {"Raean Gwapo", "34", null, null, null, null, null},
-                    {"Tamayo Raean", "18", null, null, null, null, null}
-                };
+                
+                String[][] tempData = readCSVPlayerData(csvFilePath); 
+                String[][] data = new String [tempData.length][7];
+
+                for (int i = 0; i < tempData.length; i++) {
+                    data[i][0] = tempData[i][0] + ", " + tempData[i][1]; 
+                    data[i][1] = tempData[i][2]; 
+    
+                    for (int j = 2, k = 3; j < 7 && k < tempData[i].length; j++, k++) { 
+                        data[i][j] = tempData[i][k]; 
+                    }
+                }
 
                 table = createEditableTable(data, columnNames);
                 JScrollPane sp = createScrollPane(table);
 
-                addButtons();
-                JButton applyButton = addButton("Apply", APPLY_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+                JButton applyButton = addButton("Apply", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
 
                 applyButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
-                        handleApplyActionPlayerStats();
+                        handleApplyActionPlayerStats(csvFilePath, columnNames);
                     }
                 });
 
@@ -188,21 +306,42 @@ public class TableOfficial extends JFrame implements ActionListener {
         return table;
     }
 
-    private void handleApplyActionPlayerStats() {
+    private void handleApplyActionPlayerStats(String filePath, String[] columnHeaders) {
         int rowCount = table.getRowCount();
         int columnCount = table.getColumnCount();
 
-        String[][] teamStats = extractTableData(rowCount, columnCount);
-        boolean allFieldsFilled = checkAllFieldsFilled(teamStats, rowCount, columnCount);
-        boolean isValidNumber = allFieldsFilled && validateNumbers(teamStats, rowCount, columnCount);
+        String[][] tempTeamStats = extractTableData(rowCount, columnCount); //Row 0 Team 1, Row 1 Team 2
+        boolean allFieldsFilled = checkAllFieldsFilled(tempTeamStats, rowCount, columnCount);
+        System.out.println("Before validation: " + Arrays.deepToString(tempTeamStats));
+        boolean isValidNumber = allFieldsFilled && validateNumbers(tempTeamStats, rowCount, columnCount);
+
 
         if (!allFieldsFilled) {
             new MessageBox("Please fill in all fields.", 0);
         } else if (!isValidNumber) {
             new MessageBox("Please enter valid integer numbers.", 0);
         } else {
-            new MessageBox("Player Stats saved to CSV successfully", 1);
-            // TODO: saveGameReportToCSV(teamStats);
+            String[][] teamStats = new String[tempTeamStats.length][8];
+            for (int i = 0; i < tempTeamStats.length; i++) {
+                String nameParts = tempTeamStats[i][0];
+                String[] storeSplit = nameParts.split(", ");
+                // Check if name was split correctly
+                if (storeSplit.length == 2) { 
+                    teamStats[i][0] = storeSplit[0]; // Last name
+                    teamStats[i][1] = storeSplit[1]; // First name
+                } else {
+                    teamStats[i][0] = storeSplit[0];                      
+                }
+                for (int j = 1; j < 7; j++) {
+                    teamStats[i][j + 1] = tempTeamStats[i][j];
+                }
+            }
+            // DB: Print the contents of teamStats
+            System.out.println("teamStats contents:");
+            for (String[] row : teamStats) {
+                System.out.println(Arrays.toString(row)); 
+            }
+            writePlayerStatsToCSV(teamStats, columnHeaders, filePath);
         }
     }
 
@@ -223,7 +362,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     private void styleTableHeader(JTableHeader header) {
         header.setBackground(new Color(38, 40, 83));
         header.setForeground(new Color(180, 205, 230));
-        header.setFont(new Font("Arial", Font.BOLD, 18));
+        header.setFont(new Font("Arial", Font.BOLD, 15));
         header.setPreferredSize(new Dimension(0, 65));
         header.setBorder(BorderFactory.createEmptyBorder());
     }
@@ -253,15 +392,36 @@ public class TableOfficial extends JFrame implements ActionListener {
         String[][] teamStats = new String[rowCount][columnCount];
         for (int row = 0; row < rowCount; row++) {
             for (int col = 0; col < columnCount; col++) {
-                teamStats[row][col] = (table.getValueAt(row, col) != null) ? table.getValueAt(row, col).toString() : "";
+                Object value = table.getValueAt(row, col);
+                if (value != null) {
+                    String cellValue = value.toString().trim(); 
+                    if (cellValue.contains("+")) { // Check for addition expression
+                        cellValue = calculateExpression(cellValue);
+                    }
+                    teamStats[row][col] = cellValue;
+                }
             }
         }
         return teamStats;
     }
+    
+    private String calculateExpression(String expression) {
+        String[] parts = expression.split("\\+"); // Split by "+"
+        if (parts.length == 2 && fileOp.checkIfNumber(parts[0].trim()) && fileOp.checkIfNumber(parts[1].trim())) {
+            try {
+                int result = Integer.parseInt(parts[0].trim()) + Integer.parseInt(parts[1].trim());
+                return String.valueOf(result);
+            } catch (NumberFormatException e) {
+                return expression; // Return if the parts being performed for addition are not valid integers
+            }
+        } else {
+            return expression; // Return the original if not a valid addition
+        }
+    }
 
     private boolean checkAllFieldsFilled(String[][] teamStats, int rowCount, int columnCount) {
         for (int row = 0; row < rowCount; row++) {
-            for (int col = 2; col < columnCount; col++) {
+            for (int col = 3; col < columnCount; col++) {
                 if (teamStats[row][col] == null || teamStats[row][col].trim().isEmpty()) {
                     return false;
                 }
@@ -273,12 +433,14 @@ public class TableOfficial extends JFrame implements ActionListener {
     private boolean validateNumbers(String[][] teamStats, int rowCount, int columnCount) {
     for (int row = 0; row < rowCount; row++) {
         for (int col = 2; col < columnCount; col++) {
+            System.out.println("Validating value at row " + row + ", col " + col + ": " + teamStats[row][col]);
             try {
                 int tempNum = Integer.parseInt(teamStats[row][col]);
                 if (tempNum < 0) {
                     return false;
                 }
             } catch (NumberFormatException nfe) {
+                System.out.println("Invalid number found at row " + row + ", col " + col + ": " + teamStats[row][col]);
                 return false;
             }
         }
@@ -317,14 +479,12 @@ public class TableOfficial extends JFrame implements ActionListener {
         addTableTitle(rowData);
         addStatInputFields();
 
-        addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-        addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-        JButton applyButton = addButton("Apply", APPLY_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+        JButton applyButton = addButton("Apply", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
 
         applyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleApplyActionGameReport();
+                handleApplyActionGameReport(rowData);
             }
         });
     }
@@ -372,7 +532,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     private JLabel createLabel(String text, int x, int y, int width, int height) {
         JLabel label = new JLabel(text);
         label.setBounds(x, y, width, height);
-        label.setFont(new Font("Times New Roman", Font.BOLD, 18));
+        label.setFont(Constants.customFonts[0].deriveFont(18f));
         label.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
         return label;
     }
@@ -397,12 +557,12 @@ public class TableOfficial extends JFrame implements ActionListener {
         return 50; // Adjust this value if needed
     }
 
-    private void handleApplyActionGameReport() {
+    private void handleApplyActionGameReport(String[] rowData) {
         Component[] components = forms.getComponents();
         int statIndex = 0;
         String[] team1Stats = new String[8];
         String[] team2Stats = new String[8];
-
+        String[] overallMatchStats = new String[11];
         boolean allFieldsFilled = true;
         boolean isValidNumber = true;
 
@@ -451,19 +611,55 @@ public class TableOfficial extends JFrame implements ActionListener {
             System.out.println("Invalid input. Stats cleared.");
             new MessageBox("Please enter valid integer numbers.", 0);
         } else {
+            overallMatchStats = calculateOverallMatchStats(team1Stats, team2Stats, rowData);
             new MessageBox("Game Report saved to CSV successfully", 1);
-            saveGameReportToCSV(team1Stats, team2Stats);
+            writeGameReportToCSV(team1Stats, team2Stats, overallMatchStats);
         }
     }
     
-    public void saveGameReportToCSV (String[] team1, String[] team2) {
-        //TODO: Once CSV is available create save method
-        //Check if teams are filled
-        System.out.println("Team 1 Stats: " + Arrays.toString(team1));
-        System.out.println("Team 2 Stats: " + Arrays.toString(team2));
-
+    private String[] calculateOverallMatchStats(String[] team1Stats, String[] team2Stats, String[] rowData) {
+        String[] overallStats = new String[11];
+    
+        // Team names (now at the beginning)
+        overallStats[0] = rowData[0]; // Team 1 name
+        overallStats[1] = rowData[1]; // Team 2 name
+        
+    
+        // Total points 
+        int totalPoints = 0;
+        for (int i = 0; i < 4; i++) {  
+            totalPoints += Integer.parseInt(team1Stats[i]) + Integer.parseInt(team2Stats[i]);
+        }
+        overallStats[2] = String.valueOf(totalPoints); 
+    
+        // Longest lead 
+        int maxLead = 0;
+        int currentLead = 0;
+        for (int i = 0; i < 4; i++) { 
+            currentLead += Integer.parseInt(team1Stats[i]) - Integer.parseInt(team2Stats[i]);
+            maxLead = Math.max(maxLead, Math.abs(currentLead));  
+        }
+        overallStats[3] = String.valueOf(maxLead);
+    
+        // Total rebounds, blocks, steals, assists 
+        for (int i = 4; i < 8; i++) { 
+            overallStats[i] = String.valueOf(Integer.parseInt(team1Stats[i]) + Integer.parseInt(team2Stats[i]));
+        }
+    
+        // Total team scores 
+        int totalTeam1Score = 0;
+        int totalTeam2Score = 0;
+        for (int i = 0; i < 4; i++) { 
+            totalTeam1Score += Integer.parseInt(team1Stats[i]);
+            totalTeam2Score += Integer.parseInt(team2Stats[i]);
+        }
+        overallStats[8] = String.valueOf(totalTeam1Score);
+        overallStats[9] = String.valueOf(totalTeam2Score);
+        
+        //Winner
+        overallStats[10] = (totalTeam1Score > totalTeam2Score) ? rowData[0] : rowData[1];
+        return overallStats;
     }
-
 
     private void initComponents() {
         tableOfficialProfile = new ImageIcon(Constants.ASSET_DIR + "billboard.jpg").getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
@@ -479,7 +675,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                 String fontSize = "30";
                 tableOfficialLabels[i].setText("<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + fontSize + "pt; text-align: center;'>TABLE<br>OFFICIAL</body></html>"); 
                 tableOfficialLabels[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
-                tableOfficialLabels[i].setBounds(70, 130, 250, 90); 
+                tableOfficialLabels[i].setBounds(60, 130, 250, 90); 
             }
         }
         sideBar = new JPanel();
