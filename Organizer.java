@@ -10,24 +10,25 @@ public class Organizer extends JFrame implements ActionListener {
     private JPanel sideBar;
     private JPanel[] forms = new JPanel[4];
     private JButton[] sideBarBtns = new JButton[4], dashBoardButtons = new JButton[2];
-    private JLabel[] adminLabels = new JLabel[2];
+    private JLabel[] adminLabels = new JLabel[2], counterLabels = new JLabel[4];
     private Image adminProfile;
     private ImageIcon img;
-    private JButton playerFormSubmit, teamFormSubmit;
+    private JButton playerFormSubmit, teamFormSubmit, popupBtn;
     private JTextField[] playerInputFields = new JTextField[3], teamInputFields = new JTextField[2];
     private int teamCounts = 0, playerCounts = 0;
-    private boolean connectedToCSV, isValidFile;
+    private boolean connectedToCSV;
     private Team[] teams = new Team[0];
     private DefaultTableModel tableModel;
     private JTable dashboardDataTable;
-    private JComboBox<String> selectionPopup;
+    private JComboBox<String> selectionPopup, popupOptions;
     private JScrollPane scrollPane;
 
     public Organizer() {
         setFrame();
-        isValidFile = fileOp.checkFileStructure(Constants.DATA_DIR + Constants.TEAM_FILE, Constants.TEAM_FIELD_COUNTS, 1);
-        connectedToCSV = connectToCSVDB() ;
-        if(!isValidFile || !connectedToCSV) {
+        initComponents();
+        Constants.setCustomFont();
+        connectedToCSV = connectToCSVDB();     
+        if(!connectedToCSV) {
             new MessageBox("Please manually check if the CSV File exists or is not corrupted.", JOptionPane.ERROR_MESSAGE);
             dispose();
             new Login();
@@ -37,32 +38,209 @@ public class Organizer extends JFrame implements ActionListener {
                 new MessageBox("Please manually check your CSV File if corrupted or empty.", JOptionPane.ERROR_MESSAGE);
             }
         }
-        initComponents();
-        Constants.setCustomFont();
         setDashboard();
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
+        boolean areValidInputs, fileSaved = false;
+        int idx = 0, defaultValue = 0;
+
         if(ae.getSource() == sideBarBtns[sideBarBtns.length - 1]) {
             new MessageBox("Thanks for using the system!", 1);
             dispose();
             new Login();
         }
+
         for(int i = 0; i < sideBarBtns.length - 1; i++) {
             if(ae.getSource() == sideBarBtns[i]) {
                 cdl.show(forms[0], Integer.toString(i + 1));
             }
         }
+
         if(ae.getSource() == playerFormSubmit) {
-            System.out.println("Test Click!");
+            idx = 2;
+            String selectedTeam = selectionPopup.getSelectedItem().toString();
+            areValidInputs = validateFormInputs(playerInputFields, idx, 'P');
+            if(areValidInputs) {
+                // Save to CSV
+            } 
         }
+
         if(ae.getSource() == teamFormSubmit) {
-            System.out.println("Test Click!");
+            idx = 1;
+            areValidInputs = validateFormInputs(teamInputFields, idx, 'T');
+            if(areValidInputs) {
+                int newID = generateTeamID();
+                String teamName = teamInputFields[0].getText();
+                int playerCount = Integer.parseInt(teamInputFields[1].getText());
+                Team newTeam = new Team(teamName, newID, playerCount, defaultValue, defaultValue);
+                fileSaved = fileOp.saveToCSV(Constants.DATA_DIR + Constants.TEAM_FILE, newTeam);
+                if(!fileSaved) {
+                    new MessageBox("An error occured when saving the file.", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    new MessageBox("New Team Created. File saved successfully.", JOptionPane.INFORMATION_MESSAGE);
+                }
+                teamCounts++;
+                playerCounts += playerCount;
+                updateComponents(teamName);
+            }
         }
-        if(ae.getSource() == selectionPopup) {
-            System.out.println(selectionPopup.getSelectedItem())    ;
+
+        char flag = (ae.getSource() == dashBoardButtons[0]) ? 'D' : 'G';
+        if(ae.getSource() == dashBoardButtons[0]) {
+            JFrame popupFrame = createPopupFrame(flag);
+            popupFrame.setVisible(true);
         }
+        if(ae.getSource() == dashBoardButtons[1]) {
+            JFrame popupFrame = createPopupFrame(flag);
+            popupFrame.setVisible(true);
+        }
+        
+        if(ae.getSource() == popupBtn) {
+            switch(flag) {
+                case 'D':
+                    String teamToDelete = popupOptions.getSelectedItem().toString();
+                    boolean teamDeleted = deleteTeamRecord(teamToDelete);
+                    if(!teamDeleted) {
+                        new MessageBox("Failed to delete team " + teamToDelete + ". Please check the CSV File.", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        new MessageBox("Team deleted successfully. Updated CSV File.", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    System.out.println(teamDeleted);
+                    break;
+                case 'G':
+                    String tournamentFormat = popupOptions.getSelectedItem().toString();
+                    System.out.println(tournamentFormat);
+                    break;
+            }
+        }
+    }
+
+    private boolean deleteTeamRecord(String team) {
+        int idxToDelete = 0;
+        for(int i = 0; i < teams.length; i++) {
+            if(teams[i].getTeamName().equals(team)) {
+                idxToDelete = i;
+                playerCounts -= teams[i].getPlayerCount();
+                teamCounts--;
+                break;
+            }
+        }
+        Team[] newTeam = new Team[teams.length - 1];
+        for(int i = 0; i < newTeam.length; i++) {
+            if(i != idxToDelete) {
+                newTeam[i] = teams[i];
+            }
+        }
+        // Save CSV File
+        boolean isSaved = fileOp.saveToCSV(newTeam, Constants.DATA_DIR + Constants.TEAM_FILE);
+        updateComponents(idxToDelete);
+        return isSaved;
+    }
+
+    private void updateComponents(int idx) {
+        teams = fileOp.extractTeamData(Constants.DATA_DIR + Constants.TEAM_FILE);
+        loadDataToTable();
+        selectionPopup.remove(idx);
+        popupOptions.remove(idx);
+        counterLabels[2].setText(Integer.toString(teamCounts));
+        counterLabels[3].setText(Integer.toString(playerCounts));
+    }
+
+    private void updateComponents(String teamName) {
+        resetInputFields(teamInputFields);
+        teams = fileOp.extractTeamData(Constants.DATA_DIR + Constants.TEAM_FILE);
+        selectionPopup.addItem(teamName);
+        counterLabels[2].setText(Integer.toString(teamCounts));
+        counterLabels[3].setText(Integer.toString(playerCounts));
+        loadDataToTable();
+    }   
+
+    private boolean connectToCSVDB() {
+        String fPath = Constants.DATA_DIR + Constants.TEAM_FILE;
+        File file = new File(fPath);
+        boolean validFileStructure = false;
+        if(file.exists()) {
+            if(file.length() == 0) {
+                return true;
+            } else {
+                validFileStructure = fileOp.checkFileStructure(fPath, Constants.TEAM_FIELD_COUNTS, 1);
+                if(!validFileStructure) {
+                    return false;
+                }
+            }
+        } else {
+            try {
+                boolean created = file.createNewFile();
+                if (!created) {
+                    new MessageBox("Failed to create file " + file.getAbsolutePath(), JOptionPane.ERROR_MESSAGE);
+                    System.out.println("Failed to create file: " + file.getAbsolutePath());
+                    return false;
+                }
+                System.out.println("File created successfully: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+	    
+        return true;
+    }
+
+
+    private void resetInputFields(JTextField[] inputs) {
+        for(int i = 0; i < inputs.length; i++) {
+            inputs[i].setText("");
+        }
+    }
+
+    private int generateTeamID() {
+        int maxID = 0;
+        for(int i = 0; i < teams.length; i++) {
+            if(teams[i].getTeamID() > maxID) {
+                maxID = teams[i].getTeamID();
+            }
+        }
+        return maxID + 1;
+    }
+
+    private boolean validateFormInputs(JTextField[] inputs, int numIndex, char flag) {
+        for (int i = 0; i < inputs.length; i++) {
+            String tmp = inputs[i].getText();
+            if (tmp.isEmpty()) {
+                new MessageBox("Input is empty.", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            boolean isValid = (i == numIndex) ? fileOp.checkIfNumber(tmp) : fileOp.checkIfAlphabet(tmp);
+            if (!isValid) {
+                new MessageBox("Invalid input at field " + (i + 1) + ".", JOptionPane.ERROR_MESSAGE);
+                inputs[i].setText("");
+                return false;
+            }
+        }
+        switch (flag) {
+            case 'T':
+                String teamName = inputs[0].getText(); 
+                boolean isDuplicate = fileOp.checkDuplicates(teamName, teams);
+                int playerCount = Integer.parseInt(inputs[numIndex].getText());
+                boolean validPlayerCount = (playerCount >= Constants.MIN_PLAYERS && playerCount <= Constants.MAX_PLAYERS);
+                String errorMessage = "";
+                if (!isDuplicate) {
+                    inputs[0].setText("");
+                    errorMessage += "Team name is a duplicate.\n";
+                }
+                if (!validPlayerCount) {
+                    inputs[numIndex].setText("");
+                    errorMessage += "Player count is less than " + Constants.MIN_PLAYERS + " or greater than " + Constants.MAX_PLAYERS + ".\n";
+                }
+                if(!isDuplicate || !validPlayerCount) {
+                    new MessageBox(errorMessage, JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+                break;
+        }
+        return true;
     }
 
     private void setFrame() {
@@ -73,22 +251,6 @@ public class Organizer extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-    }
-
-    private boolean connectToCSVDB() {
-        String fPath = Constants.DATA_DIR + Constants.TEAM_FILE;
-        File file = new File(fPath);
-        if(!file.exists()) {
-            try {
-                boolean created = file.createNewFile();
-                if(!created) {
-                    new MessageBox("Failed to create file " + file.getAbsolutePath(), JOptionPane.ERROR_MESSAGE);
-                }
-            } catch(IOException e) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void initComponents() {
@@ -109,8 +271,18 @@ public class Organizer extends JFrame implements ActionListener {
             adminLabels[i] = (i == 1) ? new JLabel("ADMIN") : new JLabel();
         }
         selectionPopup = new JComboBox<>();
+    }
+
+    private int getTotalPlayerCounts() {
+        int total = 0;
         for(int i = 0; i < teams.length; i++) {
-            System.out.printf("%s, %d, %d, %d, %d\n", teams[i].getTeamName(), teams[i].getTeamID(), teams[i].getPlayerCount(), teams[i].getWins(), teams[i].getLosses());
+            total += teams[i].getPlayerCount();
+        }
+        return total;
+    }
+
+    private void setSelections() {
+        for(int i = 0; i < teams.length; i++) {
             selectionPopup.addItem(teams[i].getTeamName());
         }
     }
@@ -214,6 +386,9 @@ public class Organizer extends JFrame implements ActionListener {
         selectionPopup.setFont(Constants.customFonts[1].deriveFont(20f));
         selectionPopup.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
         selectionPopup.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        if(teams.length != 0) {
+            setSelections();
+        }
         selectionPopup.addActionListener(this);
         tForm.add(selectionPopup);
 
@@ -273,12 +448,12 @@ public class Organizer extends JFrame implements ActionListener {
     }
     
     private JPanel setDashboardInfo() {
+        teamCounts = teams.length;
+        playerCounts = getTotalPlayerCounts();
         JPanel dashBoard = new JPanel();
         JPanel[] counterPanels = new JPanel[2];
-        JLabel[] counterLabels = new JLabel[4];
         String[] counterNames = {"TEAMS", "PLAYERS", Integer.toString(teamCounts), Integer.toString(playerCounts)};
         String[] btnNames = {"Delete", "Generate"};
-
 
         dashBoard.setLayout(null);
         for (int i = 0; i < counterPanels.length; i++) {
@@ -297,10 +472,14 @@ public class Organizer extends JFrame implements ActionListener {
             
             // Add the count label to the panel
             counterLabels[i + 2] = new JLabel(counterNames[i + 2]);
-            counterLabels[i + 2].setBounds(90, 70, 180, 50); // Positioning inside the panel
             counterLabels[i + 2].setFont(new Font("Arial", Font.BOLD, 50));
             counterLabels[i + 2].setForeground(Color.decode(Constants.CUSTOM_COLORS[1]));
             counterPanels[i].add(counterLabels[i + 2]);
+
+            // Calculate the X position to center the label
+            int labelWidth = counterLabels[i + 2].getPreferredSize().width;
+            int xLabelPos = (200 - labelWidth) / 2; // Centered position
+            counterLabels[i + 2].setBounds(xLabelPos, 70, labelWidth, 50); // Positioning inside the panel
     
             int buttonYPos = 50 + 70 * i;
             dashBoardButtons[i] = new JButton(btnNames[i]);
@@ -326,8 +505,8 @@ public class Organizer extends JFrame implements ActionListener {
         };
         dashboardDataTable = new JTable(tableModel);
         scrollPane = new JScrollPane(dashboardDataTable);
-        loadDataToTable();
         styleTable();
+        loadDataToTable();
         dashBoard.add(scrollPane, BorderLayout.CENTER);
         return dashBoard;
     }
@@ -374,6 +553,49 @@ public class Organizer extends JFrame implements ActionListener {
             };
             tableModel.addRow(rowData);
         }
+        Dimension tableSize = dashboardDataTable.getPreferredSize();
+        scrollPane.setPreferredSize(new Dimension(tableSize.width, tableSize.height));
+        scrollPane.revalidate();
+    }
+
+    private JFrame createPopupFrame(char flag) {
+        popupOptions = new JComboBox<>();
+        popupBtn = new JButton((flag == 'D') ? "Delete" : "Generate");
+        String title = (flag == 'D') ? "Delete Team" : "Tournament Format Generator";
+        JFrame displayFrame = new JFrame(title);
+
+        displayFrame.setSize(400, 200);
+        displayFrame.setLayout(null);
+        displayFrame.getContentPane().setBackground(Color.decode(Constants.CUSTOM_COLORS[0]));
+        displayFrame.setLocationRelativeTo(null);
+        displayFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        popupOptions.setBounds((displayFrame.getWidth() - 300) / 2 - 10, (displayFrame.getHeight() - 40) / 2 - 40, 300, 40);
+        popupOptions.setFont(Constants.customFonts[1].deriveFont(20f));
+        popupOptions.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
+        popupOptions.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        
+        popupBtn.setBounds((displayFrame.getWidth() - 150) / 2 - 10, (displayFrame.getHeight() - 40) / 2 + 20, 150, 40);
+        popupBtn.setFont(Constants.customFonts[1].deriveFont(20f));
+        popupBtn.setForeground(Color.decode(Constants.CUSTOM_COLORS[1]));
+        popupBtn.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
+        popupBtn.setBorderPainted(false);
+        popupBtn.setFocusPainted(false);
+        popupBtn.addActionListener(this);
+        if(flag == 'D') {
+            for(int i = 0; i < teams.length; i++) {
+                popupOptions.addItem(teams[i].getTeamName());
+            }
+        } else {
+            for(int i = 0; i < Constants.TOURNAMENT_FORMATS.length; i++) {
+                popupOptions.addItem(Constants.TOURNAMENT_FORMATS[i]);
+            }
+        }
+
+        displayFrame.add(popupBtn);
+        displayFrame.add(popupOptions);
+        displayFrame.setVisible(true);
+        return displayFrame;
     }
 
 }
