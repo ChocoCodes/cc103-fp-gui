@@ -170,7 +170,17 @@ public class FileOperations {
     }
 
     //FILEPATHOPERATIONS
-    public void writePlayerStatsToCSV(String[][] playerStats, String[] columnHeaders, String filePath) {
+    public void writePlayerStatsToCSV(String[][] playerStats, String[] tempColumnHeaders, String filePath) {
+        String[] columnHeaders = new String[tempColumnHeaders.length + 1];
+
+        for (int i = 0; i < columnHeaders.length; i++) {
+            columnHeaders[0] = "LAST NAME";
+            columnHeaders[1] = "FIRST NAME";
+
+            if (i > 1) {
+                columnHeaders[i] = tempColumnHeaders[i - 1];
+            }
+        }
         try {
             FileWriter output = new FileWriter(filePath);
 
