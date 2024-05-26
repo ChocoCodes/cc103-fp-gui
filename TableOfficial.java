@@ -2,6 +2,8 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
@@ -69,61 +71,24 @@ public class TableOfficial extends JFrame implements ActionListener {
 
     private void setupSingleRoundRobinTable() {
         System.out.println("Single Round Robin Button Pressed");
-        
-        //TODO create read file from CSV
-        // Sample Data for now
+
+        //TODO Read CSV Contents
         String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."};
         String[][] data = {
             {"TEAM A", "TEAM B", "1"},
             {"TEAM C", "TEAM D", "2"}
         };
         
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Make cells non-editable
-            }
-        };
-    
-        table = new JTable(model);
-        JScrollPane sp = new JScrollPane(table);
-        //Styling
-        table.setBackground(new Color(55, 58, 99));  // Darker blue background for the table
-        table.setForeground(new Color(220, 220, 220)); // Lighter gray text
-        table.setFont(new Font("Arial", Font.BOLD, 16)); 
-        table.setRowHeight(40);
-        table.setShowGrid(false); 
-        table.setBorder(BorderFactory.createEmptyBorder());
-        // Header Styling
-        table.getTableHeader().setBackground(new Color(38, 40, 83)); // Match form background
-        table.getTableHeader().setForeground(new Color(180, 205, 230)); // Light blue header text for contrast
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 18));
-        table.getTableHeader().setPreferredSize(new Dimension(0, 65)); // Larger header height
-        table.getTableHeader().setBorder(BorderFactory.createEmptyBorder());
-        // Selection Styling
-        table.setSelectionBackground(new Color(77, 81, 125)); // Darker selection for contrast
-        table.setSelectionForeground(new Color(220, 220, 220));  // Light gray selection text
+        table = createTable(data, columnNames);
+        JScrollPane sp = createScrollPane(table);
 
-        sp.getViewport().setBackground(new Color(21, 17, 57)); // Match table background
-        sp.setBorder(BorderFactory.createEmptyBorder());
+        forms.removeAll();
         
-    
-        sp.setBounds(SP_TABLE_STARTING_X_POS, SP_TABLE_STARTING_Y_POS, SP_TABLE_WIDTH, SP_TABLE_HEIGHT);
-    
-        forms.removeAll(); 
-    
-        // Table Title
-        JLabel tableTitle = new JLabel("SINGLE ROUND ROBIN - FORMAT");
-        tableTitle.setBounds(SP_TABLE_STARTING_X_POS, TABLE_TITLE_Y, SP_TABLE_WIDTH, TABLE_TITLE_HEIGHT);
-        tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
-        tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        JLabel tableTitle = createTableTitle("SINGLE ROUND ROBIN - FORMAT");
         forms.add(tableTitle);
-    
-        // Buttons
-        addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-        addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-    
-        // Add table and refresh
+
+        addButtons();
+
         forms.add(sp);
         forms.revalidate();
         forms.repaint();
@@ -131,187 +96,58 @@ public class TableOfficial extends JFrame implements ActionListener {
 
     private void setupSingleEliminationTable() {
         System.out.println("Single Elimination Button Pressed");
-        
-        //TODO create read file from csv
-        // Sample Data for now
+
+        //TODO Read CSV Contents
         String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."};
         String[][] data = {
             {"TEAM A", "TEAM B", "1"},
             {"TEAM C", "TEAM D", "2"}
         };
     
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Make cells non-editable
-            }
-        };
+        table = createTable(data, columnNames);
+        JScrollPane sp = createScrollPane(table);
     
-        table = new JTable(model);
-        JScrollPane sp = new JScrollPane(table);
-        //Styling
-        table.setBackground(new Color(55, 58, 99));  // Darker blue background for the table
-        table.setForeground(new Color(220, 220, 220)); // Lighter gray text
-        table.setFont(new Font("Arial", Font.BOLD, 16)); 
-        table.setRowHeight(40);
-        table.setShowGrid(false); 
-        table.setBorder(BorderFactory.createEmptyBorder());
-        // Header Styling
-        table.getTableHeader().setBackground(new Color(38, 40, 83)); // Match form background
-        table.getTableHeader().setForeground(new Color(180, 205, 230)); // Light blue header text for contrast
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 18));
-        table.getTableHeader().setPreferredSize(new Dimension(0, 65)); // Larger header height
-        // Selection Styling
-        table.setSelectionBackground(new Color(77, 81, 125)); // Darker selection for contrast
-        table.setSelectionForeground(new Color(220, 220, 220));  // Light gray selection text
-
-        sp.getViewport().setBackground(new Color(21, 17, 57)); // Match table background
-        sp.setBorder(BorderFactory.createEmptyBorder());
-        
-        sp.setBounds(SP_TABLE_STARTING_X_POS, SP_TABLE_STARTING_Y_POS, SP_TABLE_WIDTH, SP_TABLE_HEIGHT);
-        
-        forms.removeAll(); 
+        forms.removeAll();
     
-        // Table Title
-        JLabel tableTitle = new JLabel("SINGLE ELIMINATION - FORMAT");
-        tableTitle.setBounds(SP_TABLE_STARTING_X_POS, TABLE_TITLE_Y, SP_TABLE_WIDTH, TABLE_TITLE_HEIGHT);
-        tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
-        tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        JLabel tableTitle = createTableTitle("SINGLE ELIMINATION - FORMAT");
         forms.add(tableTitle);
     
-        // Buttons
-        addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-        addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+        addButtons();
     
-        // Add table and refresh
         forms.add(sp);
         forms.revalidate();
         forms.repaint();
     }
-    
-    //DB Purposes for now to make sure the concept is working
+
     private void handlePlayerStats() {
         if (table != null) {
             int selectedRow = table.getSelectedRow();
             int selectedColumn = table.getSelectedColumn();
-    
-            if (selectedRow >= 0 && selectedColumn >= 0 && selectedColumn <= 1) {
-                Object cellValue = table.getValueAt(selectedRow, selectedColumn);
-                String cellValueString = String.valueOf(cellValue); // Convert to string
-                //DB
-                //System.out.println("Selected Cell Value (Player Stats): " + cellValueString);
+
+            if (isSelectionValid(selectedRow, selectedColumn)) {
+                String cellValueString = String.valueOf(table.getValueAt(selectedRow, selectedColumn));
                 forms.removeAll();
+
                 String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
                 String[][] data = {
                     {"Raean Gwapo", "34", null, null, null, null, null},
                     {"Tamayo Raean", "18", null, null, null, null, null}
                 };
-                DefaultTableModel model = new DefaultTableModel(data, columnNames) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return column > 1; 
-                    }
-                };
-                table = new JTable(model);
-                JScrollPane sp = new JScrollPane(table);
-                //Styling
-                table.setBackground(new Color(55, 58, 99));  // Darker blue background for the table
-                table.setForeground(new Color(220, 220, 220)); // Lighter gray text
-                table.setFont(new Font("Arial", Font.BOLD, 13)); 
-                table.setRowHeight(40);
-                table.setShowGrid(true); 
-                table.setBorder(BorderFactory.createEmptyBorder());
-                // Header Styling
-                table.getTableHeader().setBackground(new Color(38, 40, 83)); // Match form background
-                table.getTableHeader().setForeground(new Color(180, 205, 230)); // Light blue header text for contrast
-                table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 15));
-                table.getTableHeader().setPreferredSize(new Dimension(0, 65)); // Larger header height
-                // Selection Styling
-                table.setSelectionBackground(new Color(77, 81, 125)); // Darker selection for contrast
-                table.setSelectionForeground(new Color(220, 220, 220));  // Light gray selection text
-        
-                sp.getViewport().setBackground(new Color(21, 17, 57)); // Match table background
-                sp.setBorder(BorderFactory.createEmptyBorder());
-                
-                sp.setBounds(SP_TABLE_STARTING_X_POS, SP_TABLE_STARTING_Y_POS, SP_TABLE_WIDTH, SP_TABLE_HEIGHT);
 
-                addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-                addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+                table = createEditableTable(data, columnNames);
+                JScrollPane sp = createScrollPane(table);
+
+                addButtons();
                 JButton applyButton = addButton("Apply", APPLY_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
 
                 applyButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
-                        int rowCount = table.getRowCount();
-                        int columnCount = table.getColumnCount();
-                
-                        String[][] teamStats = new String[rowCount][columnCount]; 
-                        for (int row = 0; row < rowCount; row++) {
-                            for (int col = 0; col < columnCount; col++) { 
-                                teamStats[row][col] = String.valueOf(table.getValueAt(row, col));
-                            }
-                        }
-                        for (int row = 0; row < rowCount; row++) {
-                            teamStats[row][0] = table.getValueAt(row, 0).toString(); // Player name
-                            teamStats[row][1] = table.getValueAt(row, 1).toString(); // Jersey number
-                        }
-                
-                        boolean allFieldsFilled = true;
-                        boolean isValidNumber = true;
-                        for (int row = 0; row < rowCount; row++) {
-                            for (int col = 2; col < columnCount; col++) { 
-                                String inputValue = String.valueOf(table.getValueAt(row, col));
-                
-                                if (inputValue.trim().isEmpty() || !fileOp.checkIfNumber(inputValue)) { 
-                                    isValidNumber = false;  
-                                } else {
-                                    try {
-                                        int tempNum = Integer.parseInt(inputValue);
-                                        if (tempNum < 0) {
-                                            isValidNumber = false; 
-                                        }
-                                        teamStats[row][col - 2] = inputValue;
-                                    } catch (NumberFormatException nfe) {
-                                        new MessageBox("ERROR: Input must be an integer.", 0);
-                                        isValidNumber = false; 
-                                    }
-                                }
-                                if (!isValidNumber) {
-                                    break; 
-                                }
-                            }
-                            if (!isValidNumber) {
-                                break; 
-                            }
-                        }
-                        if (!allFieldsFilled) {
-                            // Clear only columns starting from index 2 in each row
-                            for (String[] row : teamStats) {
-                                Arrays.fill(row, 2, row.length, null); 
-                            }
-                            System.out.println("Missing input. Stats cleared.");
-                            new MessageBox("Please fill in all fields.", 0);
-                        } else if (!isValidNumber) {
-                            // Clear only columns starting from index 2 in each row
-                            for (String[] row : teamStats) {
-                                Arrays.fill(row, 2, row.length, null);
-                            }
-                            System.out.println("Invalid input. Stats cleared.");
-                            new MessageBox("Please enter valid integer numbers.", 0);
-                        } else {
-                            // DB
-                            new MessageBox("Player Stats saved to CSV successfully", 1);
-                            // saveGameReportToCSV(teamStats);
-                        }
-                
+                        handleApplyActionPlayerStats();
                     }
                 });
-                // Table Title
-                JLabel tableTitle = new JLabel("ENCODE PLAYER STATS FOR " + cellValueString);
-                tableTitle.setBounds(SP_TABLE_STARTING_X_POS, TABLE_TITLE_Y, SP_TABLE_WIDTH, TABLE_TITLE_HEIGHT);
-                tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
-                tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
 
+                JLabel tableTitle = createTableTitle("ENCODE PLAYER STATS FOR " + cellValueString);
                 forms.add(tableTitle);
                 forms.add(sp);
                 forms.revalidate();
@@ -322,147 +158,301 @@ public class TableOfficial extends JFrame implements ActionListener {
         }
     }
 
+    private boolean isSelectionValid(int selectedRow, int selectedColumn) {
+        return selectedRow >= 0 && selectedColumn >= 0 && selectedColumn <= 1;
+    }
+
+    private JTable createTable(String[][] data, String[] columnNames) {
+        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable table = new JTable(model);
+        styleTable(table, false);
+        return table;
+    }
+
+    private JTable createEditableTable(String[][] data, String[] columnNames) {
+        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column > 1;
+            }
+        };
+
+        JTable table = new JTable(model);
+        styleTable(table, true);
+        return table;
+    }
+
+    private void handleApplyActionPlayerStats() {
+        int rowCount = table.getRowCount();
+        int columnCount = table.getColumnCount();
+
+        String[][] teamStats = extractTableData(rowCount, columnCount);
+        boolean allFieldsFilled = checkAllFieldsFilled(teamStats, rowCount, columnCount);
+        boolean isValidNumber = allFieldsFilled && validateNumbers(teamStats, rowCount, columnCount);
+
+        if (!allFieldsFilled) {
+            new MessageBox("Please fill in all fields.", 0);
+        } else if (!isValidNumber) {
+            new MessageBox("Please enter valid integer numbers.", 0);
+        } else {
+            new MessageBox("Player Stats saved to CSV successfully", 1);
+            // TODO: saveGameReportToCSV(teamStats);
+        }
+    }
+
+    private void styleTable(JTable table, boolean isPlayerStats) {
+        table.setBackground(new Color(55, 58, 99));
+        table.setForeground(new Color(220, 220, 220));
+        table.setFont(new Font("Arial", Font.BOLD, isPlayerStats ? 12 : 16));
+        table.setRowHeight(40);
+        table.setShowGrid(isPlayerStats ? true : false);
+        table.setBorder(BorderFactory.createEmptyBorder());
+
+        styleTableHeader(table.getTableHeader());
+
+        table.setSelectionBackground(new Color(77, 81, 125));
+        table.setSelectionForeground(new Color(220, 220, 220));
+    }
+
+    private void styleTableHeader(JTableHeader header) {
+        header.setBackground(new Color(38, 40, 83));
+        header.setForeground(new Color(180, 205, 230));
+        header.setFont(new Font("Arial", Font.BOLD, 18));
+        header.setPreferredSize(new Dimension(0, 65));
+        header.setBorder(BorderFactory.createEmptyBorder());
+    }
+
+    private JScrollPane createScrollPane(JTable table) {
+        JScrollPane sp = new JScrollPane(table);
+        sp.getViewport().setBackground(new Color(21, 17, 57));
+        sp.setBorder(BorderFactory.createEmptyBorder());
+        sp.setBounds(SP_TABLE_STARTING_X_POS, SP_TABLE_STARTING_Y_POS, SP_TABLE_WIDTH, SP_TABLE_HEIGHT);
+        return sp;
+    }
+
+    private JLabel createTableTitle(String title) {
+        JLabel tableTitle = new JLabel(title);
+        tableTitle.setBounds(SP_TABLE_STARTING_X_POS, TABLE_TITLE_Y, SP_TABLE_WIDTH, TABLE_TITLE_HEIGHT);
+        tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
+        tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        return tableTitle;
+    }
+
+    private void addButtons() {
+        addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+        addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+    }
+
+    private String[][] extractTableData(int rowCount, int columnCount) {
+        String[][] teamStats = new String[rowCount][columnCount];
+        for (int row = 0; row < rowCount; row++) {
+            for (int col = 0; col < columnCount; col++) {
+                teamStats[row][col] = (table.getValueAt(row, col) != null) ? table.getValueAt(row, col).toString() : "";
+            }
+        }
+        return teamStats;
+    }
+
+    private boolean checkAllFieldsFilled(String[][] teamStats, int rowCount, int columnCount) {
+        for (int row = 0; row < rowCount; row++) {
+            for (int col = 2; col < columnCount; col++) {
+                if (teamStats[row][col] == null || teamStats[row][col].trim().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean validateNumbers(String[][] teamStats, int rowCount, int columnCount) {
+    for (int row = 0; row < rowCount; row++) {
+        for (int col = 2; col < columnCount; col++) {
+            try {
+                int tempNum = Integer.parseInt(teamStats[row][col]);
+                if (tempNum < 0) {
+                    return false;
+                }
+            } catch (NumberFormatException nfe) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
     private void handleGameReport() {
         if (table != null) {
             int selectedRow = table.getSelectedRow();
             if (selectedRow >= 0) {
-                int columnCount = table.getColumnCount();
-                String[] rowData = new String[columnCount];
-    
-                for (int i = 0; i < columnCount; i++) {
-                    rowData[i] = String.valueOf(table.getValueAt(selectedRow, i));
-                }
-    
+                String[] rowData = extractRowData(selectedRow);
+
                 forms.removeAll(); // Clear previous content
-    
-                // Constants for layout
-                final int LABEL_WIDTH = 150;
-                final int TEXT_FIELD_WIDTH = 130;
-                final int LABEL_HEIGHT = 30;
-                final int VERTICAL_GAP = 20;
-                final int TOP_MARGIN = TABLE_TITLE_Y + TABLE_TITLE_HEIGHT + 30;
-                final int FORM_WIDTH = Constants.WIDTH - 100;
+                setupGameReportForm(rowData);
 
-                int LABEL_TEXT_FIELD_GAP = 50; 
-                int TOTAL_USED_WIDTH = (2 * LABEL_WIDTH) + (2 * TEXT_FIELD_WIDTH) + LABEL_TEXT_FIELD_GAP; 
-                int AVAILABLE_SPACE = FORM_WIDTH - TOTAL_USED_WIDTH;
-                int LEFT_MARGIN = (AVAILABLE_SPACE / 2) - 30; 
-                int COLUMN_GAP = LABEL_TEXT_FIELD_GAP; 
-
-                int tableTitleX = LEFT_MARGIN; 
-                JLabel tableTitle = new JLabel(rowData[0] + " VS. " + rowData[1]);
-                tableTitle.setBounds(tableTitleX, TABLE_TITLE_Y, SP_TABLE_WIDTH, TABLE_TITLE_HEIGHT);
-                tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
-                tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
-                forms.add(tableTitle);
-
-                String[] statLabels = {
-                    "Score for Q1", "Score for Q2", "Score for Q3", "Score for Q4",
-                    "Rebounds", "Blocks", "Steals", "Assists"
-                };
-
-                String[] team1Stats = new String[statLabels.length];
-                String[] team2Stats = new String[statLabels.length];
-
-                for (int i = 0; i < statLabels.length; i++) {
-
-                    int label1X = LEFT_MARGIN; 
-                    JLabel label1 = new JLabel(statLabels[i]);
-                    label1.setBounds(label1X, TOP_MARGIN + i * (LABEL_HEIGHT + VERTICAL_GAP), LABEL_WIDTH, LABEL_HEIGHT);
-                    label1.setFont(new Font("Times New Roman", Font.BOLD, 18));
-                    label1.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
-
-                    int textField1X = label1X + LABEL_WIDTH + LABEL_TEXT_FIELD_GAP - 30;
-                    JTextField textField1 = new JTextField();
-                    textField1.setBounds(textField1X, label1.getY(), TEXT_FIELD_WIDTH, LABEL_HEIGHT);
-                    forms.add(label1);
-                    forms.add(textField1);
-
-                    int label2X = textField1X + TEXT_FIELD_WIDTH + COLUMN_GAP;
-                    JLabel label2 = new JLabel(statLabels[i]);
-                    label2.setBounds(label2X + 30, label1.getY(), LABEL_WIDTH, LABEL_HEIGHT);
-                    label2.setFont(new Font("Times New Roman", Font.BOLD, 18));
-                    label2.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
-
-                    int textField2X = label2X + LABEL_WIDTH + LABEL_TEXT_FIELD_GAP;
-                    JTextField textField2 = new JTextField();
-                    textField2.setBounds(textField2X, label1.getY(), TEXT_FIELD_WIDTH, LABEL_HEIGHT);
-                    forms.add(label2);
-                    forms.add(textField2);
-
-                }
-                            
-    
-                addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-                addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-                JButton applyButton = addButton("Apply", APPLY_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-
-                applyButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Component[] components = forms.getComponents();
-                        int statIndex = 0;
-                        boolean allFieldsFilled = true;
-                        boolean isValidNumber = true; 
-                
-                        for (Component component : components) {
-                            if (component instanceof JTextField) {
-                                JTextField textField = (JTextField) component;
-                                String inputValue = textField.getText();
-                
-                                if (inputValue.trim().isEmpty()) {
-                                    allFieldsFilled = false;
-                                    break; 
-                                } else if (!fileOp.checkIfNumber(inputValue)) { 
-                                    isValidNumber = false;
-                                    break; 
-                                }
-                
-                                try {
-                                    int tempNum = Integer.parseInt(inputValue);
-                                    if (tempNum < 0) {
-                                        isValidNumber = false;
-                                        break; 
-                                    }
-                                } catch (NumberFormatException nfex) {
-                                    new MessageBox("ERROR: Input must be an integer.", 0);
-                                    isValidNumber = false;
-                                    break; 
-                                }
-
-                                if (statIndex % 2 == 0) {
-                                    team1Stats[statIndex / 2] = inputValue;
-                                } else {
-                                    team2Stats[statIndex / 2] = inputValue;
-                                }
-                                statIndex++;
-                            }
-                        }
-                
-                        if (!allFieldsFilled) {
-                            Arrays.fill(team1Stats, null);
-                            Arrays.fill(team2Stats, null);
-                            System.out.println("Missing input. Stats cleared.");
-                            new MessageBox("Please fill in all fields.", 0);
-                        } else if (!isValidNumber) {
-                            Arrays.fill(team1Stats, null);
-                            Arrays.fill(team2Stats, null);
-                            System.out.println("Invalid input. Stats cleared.");
-                            new MessageBox("Please enter valid integer numbers.", 0);
-                        } else {
-                            //DB
-                            new MessageBox("Game Report saved to CSV successfully", 1);
-                            saveGameReportToCSV(team1Stats, team2Stats);
-                        }
-                    }
-                });
-                
                 forms.revalidate();
                 forms.repaint();
-
             } else {
                 new MessageBox("No/Invalid Row Selected for Game Report. Usage: Select A Team", 0);
             }
+        }
+    }
+
+    private String[] extractRowData(int selectedRow) {
+        int columnCount = table.getColumnCount();
+        String[] rowData = new String[columnCount];
+
+        for (int i = 0; i < columnCount; i++) {
+            rowData[i] = String.valueOf(table.getValueAt(selectedRow, i));
+        }
+        return rowData;
+    }
+
+    private void setupGameReportForm(String[] rowData) {
+        addTableTitle(rowData);
+        addStatInputFields();
+
+        addButton("Game Report", GAME_REPORT_BTN_X, GAME_REPORT_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+        addButton("Player Stats", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+        JButton applyButton = addButton("Apply", APPLY_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
+
+        applyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleApplyActionGameReport();
+            }
+        });
+    }
+
+    private void addTableTitle(String[] rowData) {
+        JLabel tableTitle = new JLabel(rowData[0] + " VS. " + rowData[1]);
+        tableTitle.setBounds(calculateLeftMargin(), TABLE_TITLE_Y, SP_TABLE_WIDTH, TABLE_TITLE_HEIGHT);
+        tableTitle.setFont(Constants.customFonts[0].deriveFont(Font.BOLD, TABLE_TITLE_SIZE));
+        tableTitle.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        forms.add(tableTitle);
+    }
+
+    private void addStatInputFields() {
+        String[] statLabels = {
+            "Score for Q1", "Score for Q2", "Score for Q3", "Score for Q4",
+            "Rebounds", "Blocks", "Steals", "Assists"
+        };
+
+        int topMargin = TABLE_TITLE_Y + TABLE_TITLE_HEIGHT + 30;
+        int leftMargin = calculateLeftMargin();
+        int labelWidth = 150;
+        int textFieldWidth = 130;
+        int labelHeight = 30;
+        int verticalGap = 20;
+        int labelTextFieldGap = 50;
+
+        for (int i = 0; i < statLabels.length; i++) {
+            int label1X = leftMargin;
+            JLabel label1 = createLabel(statLabels[i], label1X, topMargin + i * (labelHeight + verticalGap), labelWidth, labelHeight);
+            int textField1X = label1X + labelWidth + labelTextFieldGap - 30;
+            JTextField textField1 = createTextField(textField1X, label1.getY(), textFieldWidth, labelHeight);
+
+            int label2X = textField1X + textFieldWidth + calculateColumnGap();
+            JLabel label2 = createLabel(statLabels[i], label2X + 30, label1.getY(), labelWidth, labelHeight);
+            int textField2X = label2X + labelWidth + labelTextFieldGap;
+            JTextField textField2 = createTextField(textField2X, label1.getY(), textFieldWidth, labelHeight);
+
+            forms.add(label1);
+            forms.add(textField1);
+            forms.add(label2);
+            forms.add(textField2);
+        }
+    }
+
+    private JLabel createLabel(String text, int x, int y, int width, int height) {
+        JLabel label = new JLabel(text);
+        label.setBounds(x, y, width, height);
+        label.setFont(new Font("Times New Roman", Font.BOLD, 18));
+        label.setForeground(Color.decode(Constants.CUSTOM_COLORS[3]));
+        return label;
+    }
+
+    private JTextField createTextField(int x, int y, int width, int height) {
+        JTextField textField = new JTextField();
+        textField.setBounds(x, y, width, height);
+        return textField;
+    }
+
+    private int calculateLeftMargin() {
+        final int FORM_WIDTH = Constants.WIDTH - 100;
+        final int LABEL_WIDTH = 150;
+        final int TEXT_FIELD_WIDTH = 130;
+        final int LABEL_TEXT_FIELD_GAP = 50;
+        final int TOTAL_USED_WIDTH = (2 * LABEL_WIDTH) + (2 * TEXT_FIELD_WIDTH) + LABEL_TEXT_FIELD_GAP;
+        final int AVAILABLE_SPACE = FORM_WIDTH - TOTAL_USED_WIDTH;
+        return (AVAILABLE_SPACE / 2) - 30;
+    }
+
+    private int calculateColumnGap() {
+        return 50; // Adjust this value if needed
+    }
+
+    private void handleApplyActionGameReport() {
+        Component[] components = forms.getComponents();
+        int statIndex = 0;
+        String[] team1Stats = new String[8];
+        String[] team2Stats = new String[8];
+
+        boolean allFieldsFilled = true;
+        boolean isValidNumber = true;
+
+        for (Component component : components) {
+            if (component instanceof JTextField) {
+                JTextField textField = (JTextField) component;
+                String inputValue = textField.getText();
+
+                if (inputValue.trim().isEmpty()) {
+                    allFieldsFilled = false;
+                    break;
+                } else if (!fileOp.checkIfNumber(inputValue)) {
+                    isValidNumber = false;
+                    break;
+                }
+
+                try {
+                    int tempNum = Integer.parseInt(inputValue);
+                    if (tempNum < 0) {
+                        isValidNumber = false;
+                        break;
+                    }
+                } catch (NumberFormatException nfex) {
+                    new MessageBox("ERROR: Input must be an integer.", 0);
+                    isValidNumber = false;
+                    break;
+                }
+
+                if (statIndex % 2 == 0) {
+                    team1Stats[statIndex / 2] = inputValue;
+                } else {
+                    team2Stats[statIndex / 2] = inputValue;
+                }
+                statIndex++;
+            }
+        }
+
+        if (!allFieldsFilled) {
+            Arrays.fill(team1Stats, null);
+            Arrays.fill(team2Stats, null);
+            System.out.println("Missing input. Stats cleared.");
+            new MessageBox("Please fill in all fields.", 0);
+        } else if (!isValidNumber) {
+            Arrays.fill(team1Stats, null);
+            Arrays.fill(team2Stats, null);
+            System.out.println("Invalid input. Stats cleared.");
+            new MessageBox("Please enter valid integer numbers.", 0);
+        } else {
+            new MessageBox("Game Report saved to CSV successfully", 1);
+            saveGameReportToCSV(team1Stats, team2Stats);
         }
     }
     
