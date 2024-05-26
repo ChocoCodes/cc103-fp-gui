@@ -16,7 +16,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     private JTable table;
     private Image tableOfficialProfile;
     private JLabel[] tableOfficialLabels = new JLabel[2];
-    private static FileOperations fileOp = new FileOperations();
+    private FileOperations fileOp = new FileOperations();
 
     // Table Constants
     private final int SP_TABLE_STARTING_X_POS = 12;
@@ -74,8 +74,8 @@ public class TableOfficial extends JFrame implements ActionListener {
         System.out.println("Single Round Robin Button Pressed");
 
         //FILEPATH METHODS
-        String csvFilePath = "CSVFolders\\Schedules\\roundRobinSchedules.csv"; // TODO  Update with the correct path
-        String[][] data = readCSVDataSchedules(csvFilePath);
+        String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE; // TODO  Update with the correct path
+        String[][] data = fileOp.readCSVDataSchedules(csvFilePath);
         String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."}; 
 
         table = createTable(data, columnNames);
@@ -91,125 +91,12 @@ public class TableOfficial extends JFrame implements ActionListener {
         forms.repaint();
     }
 
-    //TODO move to fileOperations class later 
-    //FILEPATHOPERATIONS
-    private String[][] readCSVDataSchedules(String filePath) {
-        ArrayList<String[]> rows = new ArrayList<>(); 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                // Skip the header line
-                if (!line.startsWith("Team 1")) {
-                    rows.add(line.split(",")); 
-                }
-            }
-        } catch (IOException e) {
-            new MessageBox("ERROR: Could not read CSV file.", 0);
-            return null;
-        }
-        return rows.toArray(new String[0][]); 
-    }
-
-    //FILEPATHOPERATIONS
-    private String[][] readCSVPlayerData(String filePath) {
-        ArrayList<String[]> rows = new ArrayList<>(); 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                // Skip the header line
-                if (!line.startsWith("PLAYER")) {
-                    rows.add(line.split(", ")); 
-                }
-            }
-        } catch (IOException e) {
-            new MessageBox("ERROR: Could not read CSV file.", 0);
-            return null;
-        }
-        return rows.toArray(new String[0][]); 
-    }
-
-    //FILEPATHOPERATIONS
-    private void writePlayerStatsToCSV(String[][] playerStats, String[] columnHeaders, String filePath) {
-        try {
-            FileWriter output = new FileWriter(filePath);
-
-            for (int i = 0; i < columnHeaders.length; i++) {
-                output.write(columnHeaders[i]);
-                if (i < columnHeaders.length - 1) {
-                    output.write(","); 
-                }
-            }
-            output.write("\n");
-    
-            for (int i = 0; i < playerStats.length; i++) {
-                for (int j = 0; j < playerStats[i].length; j++) {
-                    if (j == playerStats[i].length - 1) {
-                        output.write(playerStats[i][j]);
-                    } else {
-                        output.write(playerStats[i][j] + ", ");
-                    }
-                }
-                output.write("\n");
-            }
-    
-            new MessageBox("Player Stats saved to CSV successfully", 1);
-            output.close();
-        } catch (Exception e) {
-            new MessageBox("Unable to write Player Stats file to CSV", 0);
-        }
-    }
-
-    //FILEPATHOPERATIONS
-    public void writeGameReportToCSV(String[] team1, String[] team2, String[] overallMatchStats) {
-        String filePath = "CSVFolders\\Stats\\" + overallMatchStats[0] + "VS" + overallMatchStats[1] + ".csv"; //Change later to actual file path
-        String[] columnHeaders = {
-                "TEAM NAME 1", "TEAM NAME 2", "TOTAL POINTS", "LONGEST LEAD", "TOTAL REBOUNDS", 
-                "TOTAL BLOCKS", "TOTAL STEALS", "TOTAL ASSISTS",  "TEAM 1 SCORE", "TEAM 2 SCORE", "WINNER"
-        };
-    
-        String[] teamStatHeaders = {
-                "TEAM NAME", "Q1 SCORE","Q2 SCORE","Q3 SCORE","Q4 SCORE", 
-                "TEAM REBOUNDS", "TEAM BLOCKS", "TEAM STEALS", "TEAM ASSISTS"
-        };
-     
-        try (FileWriter writer = new FileWriter(filePath)) {
-    
-            writeLine(writer, columnHeaders);
-    
-            writeLine(writer, overallMatchStats);
-            
-            writer.write("\n");
-    
-            writeLine(writer, teamStatHeaders);
-            
-            writer.write(overallMatchStats[0] + ",");  // Team 1 name
-            writeLine(writer, team1);
-            
-            writer.write(overallMatchStats[1] + ",");  // Team 2 name
-            writeLine(writer, team2);
-    
-            new MessageBox("Game Report saved to CSV successfully", 1);
-        } catch (IOException e) {
-            new MessageBox("Unable to write Game Report file to CSV", 0);
-        }
-    }
-    
-    private void writeLine(FileWriter writer, String[] data) throws IOException {
-        for (int i = 0; i < data.length; i++) {
-            writer.write(data[i]);
-            if (i < data.length - 1) {
-                writer.write(",");
-            }
-        }
-        writer.write("\n");
-    }
-
     private void setupSingleEliminationTable() {
         System.out.println("Single Elimination Button Pressed");
 
         //FILEPATH METHODS
-        String csvFilePath = "CSVFolders\\Schedules\\singleEliminationSchedules.csv"; // TODO  Update with the correct path
-        String[][] data = readCSVDataSchedules(csvFilePath);
+        String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE; // TODO  Update with the correct path
+        String[][] data = fileOp.readCSVDataSchedules(csvFilePath);
         String[] columnNames = {"TEAM 1", "TEAM 2", "MATCH NO."}; 
     
         table = createTable(data, columnNames);
@@ -236,12 +123,12 @@ public class TableOfficial extends JFrame implements ActionListener {
                 String cellValueString = String.valueOf(table.getValueAt(selectedRow, selectedColumn));
                 forms.removeAll();
 
-                String csvFilePath = "CSVFolders\\Players\\" + cellValueString + ".csv"; // TODO  Update with the correct path
+                String csvFilePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + cellValueString + ".csv"; // TODO  Update with the correct path
                 //TODO Read CSV of Players from the specific team
                 //File path  CSVFolders\\Stats\\filename
                 String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
                 
-                String[][] tempData = readCSVPlayerData(csvFilePath); 
+                String[][] tempData = fileOp.readCSVPlayerData(csvFilePath); 
                 String[][] data = new String [tempData.length][7];
 
                 for (int i = 0; i < tempData.length; i++) {
@@ -271,7 +158,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                 forms.revalidate();
                 forms.repaint();
             } else {
-                new MessageBox("No/Invalid Column Selected for Player Stats. Usage: Select A Team", 0);
+                new MessageBox("No / Invalid Column Selected for Player Stats. Usage: Select A Team", 0);
             }
         }
     }
@@ -315,7 +202,6 @@ public class TableOfficial extends JFrame implements ActionListener {
         System.out.println("Before validation: " + Arrays.deepToString(tempTeamStats));
         boolean isValidNumber = allFieldsFilled && validateNumbers(tempTeamStats, rowCount, columnCount);
 
-
         if (!allFieldsFilled) {
             new MessageBox("Please fill in all fields.", 0);
         } else if (!isValidNumber) {
@@ -341,7 +227,7 @@ public class TableOfficial extends JFrame implements ActionListener {
             for (String[] row : teamStats) {
                 System.out.println(Arrays.toString(row)); 
             }
-            writePlayerStatsToCSV(teamStats, columnHeaders, filePath);
+            fileOp.writePlayerStatsToCSV(teamStats, columnHeaders, filePath);
         }
     }
 
@@ -460,7 +346,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                 forms.revalidate();
                 forms.repaint();
             } else {
-                new MessageBox("No/Invalid Row Selected for Game Report. Usage: Select A Team", 0);
+                new MessageBox("No / Invalid Row Selected for Game Report. Usage: Select A Team", 0);
             }
         }
     }
@@ -612,8 +498,7 @@ public class TableOfficial extends JFrame implements ActionListener {
             new MessageBox("Please enter valid integer numbers.", 0);
         } else {
             overallMatchStats = calculateOverallMatchStats(team1Stats, team2Stats, rowData);
-            new MessageBox("Game Report saved to CSV successfully", 1);
-            writeGameReportToCSV(team1Stats, team2Stats, overallMatchStats);
+            fileOp.writeGameReportToCSV(team1Stats, team2Stats, overallMatchStats);
         }
     }
     

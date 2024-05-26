@@ -133,4 +133,114 @@ public class FileOperations {
         }
         return true;
     }
+
+    public String[][] readCSVDataSchedules(String filePath) {
+        ArrayList<String[]> rows = new ArrayList<>(); 
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Skip the header line
+                if (!line.startsWith("Team 1")) {
+                    rows.add(line.split(",")); 
+                }
+            }
+        } catch (IOException e) {
+            new MessageBox("ERROR: Could not read CSV file.", 0);
+            return null;
+        }
+        return rows.toArray(new String[0][]); 
+    }
+
+    //FILEPATHOPERATIONS
+    public String[][] readCSVPlayerData(String filePath) {
+        ArrayList<String[]> rows = new ArrayList<>(); 
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Skip the header line
+                if (!line.startsWith("PLAYER")) {
+                    rows.add(line.split(", ")); 
+                }
+            }
+        } catch (IOException e) {
+            new MessageBox("ERROR: Could not read CSV file.", 0);
+            return null;
+        }
+        return rows.toArray(new String[0][]); 
+    }
+
+    //FILEPATHOPERATIONS
+    public void writePlayerStatsToCSV(String[][] playerStats, String[] columnHeaders, String filePath) {
+        try {
+            FileWriter output = new FileWriter(filePath);
+
+            for (int i = 0; i < columnHeaders.length; i++) {
+                output.write(columnHeaders[i]);
+                if (i < columnHeaders.length - 1) {
+                    output.write(","); 
+                }
+            }
+            output.write("\n");
+    
+            for (int i = 0; i < playerStats.length; i++) {
+                for (int j = 0; j < playerStats[i].length; j++) {
+                    if (j == playerStats[i].length - 1) {
+                        output.write(playerStats[i][j]);
+                    } else {
+                        output.write(playerStats[i][j] + ", ");
+                    }
+                }
+                output.write("\n");
+            }
+            new MessageBox("Player Stats saved to CSV successfully", 1);
+            output.close();
+        } catch (Exception e) {
+            new MessageBox("Unable to write Player Stats file to CSV", 0);
+        }
+    }
+
+    //FILEPATHOPERATIONS
+    public void writeGameReportToCSV(String[] team1, String[] team2, String[] overallMatchStats) {
+        String filePath = Constants.DATA_DIR + Constants.STATS_DIR + overallMatchStats[0] + "VS" + overallMatchStats[1] + ".csv"; //Change later to actual file path
+        String[] columnHeaders = {
+                "TEAM NAME 1", "TEAM NAME 2", "TOTAL POINTS", "LONGEST LEAD", "TOTAL REBOUNDS", 
+                "TOTAL BLOCKS", "TOTAL STEALS", "TOTAL ASSISTS",  "TEAM 1 SCORE", "TEAM 2 SCORE", "WINNER"
+        };
+    
+        String[] teamStatHeaders = {
+                "TEAM NAME", "Q1 SCORE","Q2 SCORE","Q3 SCORE","Q4 SCORE", 
+                "TEAM REBOUNDS", "TEAM BLOCKS", "TEAM STEALS", "TEAM ASSISTS"
+        };
+     
+        try (FileWriter writer = new FileWriter(filePath)) {
+    
+            writeLine(writer, columnHeaders);
+    
+            writeLine(writer, overallMatchStats);
+            
+            writer.write("\n");
+    
+            writeLine(writer, teamStatHeaders);
+            
+            writer.write(overallMatchStats[0] + ",");  // Team 1 name
+            writeLine(writer, team1);
+            
+            writer.write(overallMatchStats[1] + ",");  // Team 2 name
+            writeLine(writer, team2);
+    
+            new MessageBox("Game Report saved to CSV successfully", 1);
+        } catch (IOException e) {
+            new MessageBox("Unable to write Game Report file to CSV", 0);
+        }
+    }
+    
+    public void writeLine(FileWriter writer, String[] data) throws IOException {
+        for (int i = 0; i < data.length; i++) {
+            writer.write(data[i]);
+            if (i < data.length - 1) {
+                writer.write(",");
+            }
+        }
+        writer.write("\n");
+    }
 }

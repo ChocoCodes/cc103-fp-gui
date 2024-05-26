@@ -153,6 +153,8 @@ class Constants {
     public static final String ASSET_DIR = "Resources/";
     public static final String DATA_DIR = "CSVFolder/";
     public static final String SCHEDULES_DIR = "Schedules/";
+    public static final String STATS_DIR = "Stats/";
+    public static final String PLAYERS_DIR = "Players/";
     public static final String TEAM_FILE = "Teams.csv";
     public static final String RR_FILE = "RoundRobinSchedule.csv";
     public static final String SE_FILE = "SingleEliminationSchedule.csv";
