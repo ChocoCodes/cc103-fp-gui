@@ -153,8 +153,12 @@ class Constants {
     public static final String DATA_DIR = "CSVFolder/";
     public static final String TEAM_FILE = "Teams.csv";
     public static final int WIDTH = 900, HEIGHT = 500;
+    public static final String[] DASHBOARD_COLUMNS = {"Team Name", "Team ID", "Player Counts", "Wins", "Losses"};
     public static final int TEAM_FIELD_COUNTS = 5;
     public static final int PLAYER_FIELD_COUNTS = 8;
+    public static final int MIN_PLAYERS = 5;
+    public static final int MAX_PLAYERS = 18;
+    public static final int MIN_TEAMS = 8;
     public static final String[] TOURNAMENT_FORMATS = {
         "Single Round Robin",
         "Single Elimination"

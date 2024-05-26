@@ -13,7 +13,7 @@ public class Team {
         this.wins = wins;
         this.losses = losses;
     }
-    
+
     // Setter for the teamName attribute for duplicate checking
     public void setNewTeamName(String teamName) {
         this.teamName = teamName;
