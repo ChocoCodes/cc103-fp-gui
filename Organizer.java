@@ -3,6 +3,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.Random;
 
 public class Organizer extends JFrame implements ActionListener {
     private FileOperations fileOp = new FileOperations();
@@ -22,6 +23,7 @@ public class Organizer extends JFrame implements ActionListener {
     private JTable dashboardDataTable;
     private JComboBox<String> selectionPopup, popupOptions;
     private JScrollPane scrollPane;
+    private char currentOperation = ' ';
 
     public Organizer() {
         setFrame();
@@ -87,19 +89,21 @@ public class Organizer extends JFrame implements ActionListener {
             }
         }
 
-        char flag = (ae.getSource() == dashBoardButtons[0]) ? 'D' : 'G';
+        char flag = ' ';
         if(ae.getSource() == dashBoardButtons[0]) {
+            flag = 'D';
             JFrame popupFrame = createPopupFrame(flag);
             popupFrame.setVisible(true);
         }
         if(ae.getSource() == dashBoardButtons[1]) {
+            flag = 'G';
             JFrame popupFrame = createPopupFrame(flag);
             popupFrame.setVisible(true);
         }
         
         if(ae.getSource() == popupBtn) {
-            switch(flag) {
-                case 'D':
+            switch (currentOperation) {
+                case 'D':   
                     String teamToDelete = popupOptions.getSelectedItem().toString();
                     boolean teamDeleted = deleteTeamRecord(teamToDelete);
                     if(!teamDeleted) {
@@ -107,13 +111,100 @@ public class Organizer extends JFrame implements ActionListener {
                     } else {
                         new MessageBox("Team deleted successfully. Updated CSV File.", JOptionPane.INFORMATION_MESSAGE);
                     }
-                    System.out.println(teamDeleted);
                     break;
                 case 'G':
-                    String tournamentFormat = popupOptions.getSelectedItem().toString();
-                    System.out.println(tournamentFormat);
+                    boolean isValidTeamCount = checkMinimumTeamCount(teams),
+                    roundRobinGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE), 
+                    eliminationGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE);
+                    if(!isValidTeamCount) {
+                        new MessageBox("Minimum Team Counts should be " + Constants.MIN_TEAMS + " before generating.", JOptionPane.ERROR_MESSAGE);
+                    }
+                    if(roundRobinGenerated && eliminationGenerated) {
+                        new MessageBox("Tournament format/s already generated.", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        String tournamentFormat = popupOptions.getSelectedItem().toString();
+                        if(tournamentFormat.equals(Constants.TOURNAMENT_FORMATS[0])) {
+                            generateRoundRobin(teams);
+                        } else {
+                            generateSingleElimination(teams);
+                        }
+                    }
                     break;
             }
+        }
+    }
+    
+    private void generateSingleElimination(Team[] teams) {
+        if (!checkforEvenTeamCount(teams)) {
+            new MessageBox("Please ensure that you have an even count of teams.", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        String filename = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE;
+        // Create Copy of Team List
+        String[] newTeamList = new String[teams.length];
+        for(int i = 0; i < newTeamList.length; i++) {
+            newTeamList[i] = teams[i].getTeamName();
+        }
+        newTeamList = shuffleArray(newTeamList);
+        int remainingTeams = newTeamList.length;
+
+        int ctr = 0;
+        String[] matchUps = new String[remainingTeams / 2];
+        // Dynamically create matchups and append to the matchUps array
+        for (int i = 0; i < remainingTeams - 1; i += 2) {
+            String teamA = newTeamList[i];
+            String teamB = newTeamList[i + 1];
+            String matchUp = teamA + " vs " + teamB;
+            matchUps[ctr++] = matchUp;
+        }
+
+        boolean isSaved = fileOp.writeToCSVFile(filename, matchUps);
+        if (!isSaved) {
+            new MessageBox("An error occured when saving match schedule", JOptionPane.ERROR_MESSAGE);
+        } else {
+            new MessageBox("Match schedules for Single Elimination saved successfully.", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private String[] shuffleArray(String[] array) {
+        Random random = new Random();
+        for (int i = array.length - 1; i >= 0; i--) {
+            int index = random.nextInt(i + 1);
+            //Swap elements Randomly
+            String temp = array[i];
+            array[i] = array[index];
+            array[index] = temp;
+        }
+        return array;
+    }
+
+    private boolean checkforEvenTeamCount(Team[] teams) {
+        return teams.length % 2 == 0;
+    }
+
+    private boolean checkMinimumTeamCount(Team[] teams) {
+        return teams.length >= Constants.MIN_TEAMS;
+    }
+
+    // Generate Round Robin Format
+    private void generateRoundRobin(Team[] teams) {
+        String filePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE;
+        String[] matchTeam = new String[(teams.length * (teams.length - 1) / 2)];
+        int matchTeamIndex = 0;
+        // Generate Team Match-Ups
+        for (int i = 0; i < teams.length; i++) {
+            for (int j = i + 1; j < teams.length; j++) {
+                if (teams[i].getTeamName() != teams[j].getTeamName()) {
+                    matchTeam[matchTeamIndex] = (teams[i].getTeamName() + " vs " + teams[j].getTeamName());
+                    matchTeamIndex++;
+                }
+            }
+        }
+        boolean matchSaved = fileOp.writeToCSVFile(filePath, matchTeam);
+        if (!matchSaved)  {
+            new MessageBox("An error occured when saving the schedule.", JOptionPane.ERROR_MESSAGE);
+        } else {
+            new MessageBox("Round Robin schedule successfully generated.", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -124,13 +215,17 @@ public class Organizer extends JFrame implements ActionListener {
                 idxToDelete = i;
                 playerCounts -= teams[i].getPlayerCount();
                 teamCounts--;
+                selectionPopup.removeItemAt(i);
+                popupOptions.removeItemAt(i);
                 break;
             }
         }
         Team[] newTeam = new Team[teams.length - 1];
-        for(int i = 0; i < newTeam.length; i++) {
-            if(i != idxToDelete) {
-                newTeam[i] = teams[i];
+        int newIndex = 0;
+        for (int i = 0; i < teams.length; i++) {
+            if (i != idxToDelete) {
+                newTeam[newIndex] = teams[i];
+                newIndex++;
             }
         }
         // Save CSV File
@@ -142,8 +237,6 @@ public class Organizer extends JFrame implements ActionListener {
     private void updateComponents(int idx) {
         teams = fileOp.extractTeamData(Constants.DATA_DIR + Constants.TEAM_FILE);
         loadDataToTable();
-        selectionPopup.remove(idx);
-        popupOptions.remove(idx);
         counterLabels[2].setText(Integer.toString(teamCounts));
         counterLabels[3].setText(Integer.toString(playerCounts));
     }
@@ -175,16 +268,12 @@ public class Organizer extends JFrame implements ActionListener {
                 boolean created = file.createNewFile();
                 if (!created) {
                     new MessageBox("Failed to create file " + file.getAbsolutePath(), JOptionPane.ERROR_MESSAGE);
-                    System.out.println("Failed to create file: " + file.getAbsolutePath());
                     return false;
                 }
-                System.out.println("File created successfully: " + file.getAbsolutePath());
             } catch (IOException e) {
-                e.printStackTrace();
                 return false;
             }
         }
-	    
         return true;
     }
 
@@ -562,6 +651,7 @@ public class Organizer extends JFrame implements ActionListener {
         popupOptions = new JComboBox<>();
         popupBtn = new JButton((flag == 'D') ? "Delete" : "Generate");
         String title = (flag == 'D') ? "Delete Team" : "Tournament Format Generator";
+        currentOperation = flag;
         JFrame displayFrame = new JFrame(title);
 
         displayFrame.setSize(400, 200);
@@ -574,14 +664,7 @@ public class Organizer extends JFrame implements ActionListener {
         popupOptions.setFont(Constants.customFonts[1].deriveFont(20f));
         popupOptions.setForeground(Color.decode(Constants.CUSTOM_COLORS[4]));
         popupOptions.setBackground(Color.decode(Constants.CUSTOM_COLORS[3]));
-        
-        popupBtn.setBounds((displayFrame.getWidth() - 150) / 2 - 10, (displayFrame.getHeight() - 40) / 2 + 20, 150, 40);
-        popupBtn.setFont(Constants.customFonts[1].deriveFont(20f));
-        popupBtn.setForeground(Color.decode(Constants.CUSTOM_COLORS[1]));
-        popupBtn.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
-        popupBtn.setBorderPainted(false);
-        popupBtn.setFocusPainted(false);
-        popupBtn.addActionListener(this);
+
         if(flag == 'D') {
             for(int i = 0; i < teams.length; i++) {
                 popupOptions.addItem(teams[i].getTeamName());
@@ -591,6 +674,14 @@ public class Organizer extends JFrame implements ActionListener {
                 popupOptions.addItem(Constants.TOURNAMENT_FORMATS[i]);
             }
         }
+        
+        popupBtn.setBounds((displayFrame.getWidth() - 150) / 2 - 10, (displayFrame.getHeight() - 40) / 2 + 20, 150, 40);
+        popupBtn.setFont(Constants.customFonts[1].deriveFont(20f));
+        popupBtn.setForeground(Color.decode(Constants.CUSTOM_COLORS[1]));
+        popupBtn.setBackground(Color.decode(Constants.CUSTOM_COLORS[2]));
+        popupBtn.setBorderPainted(false);
+        popupBtn.setFocusPainted(false);
+        popupBtn.addActionListener(this);
 
         displayFrame.add(popupBtn);
         displayFrame.add(popupOptions);
