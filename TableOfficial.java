@@ -12,6 +12,8 @@ public class TableOfficial extends JFrame implements ActionListener {
     private Image tableOfficialProfile;
     private JLabel[] tableOfficialLabels = new JLabel[2];
     private FileOperations fileOp = new FileOperations();
+    private Team team = new Team();
+    private Player[] players;
 
     // Table Constants
     private final int SP_TABLE_STARTING_X_POS = 12;
@@ -60,7 +62,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     }
 
     private void handleLogout() {
-        new MessageBox("Thanks for using the system!", 0);
+        new MessageBox("Thanks for using the system!", JOptionPane.ERROR_MESSAGE);
         dispose();
         new Login();
     }
@@ -113,45 +115,72 @@ public class TableOfficial extends JFrame implements ActionListener {
         if (table != null) {
             int selectedRow = table.getSelectedRow();
             int selectedColumn = table.getSelectedColumn();
-
+    
             if (isSelectionValid(selectedRow, selectedColumn)) {
                 String cellValueString = String.valueOf(table.getValueAt(selectedRow, selectedColumn));
-                forms.removeAll();
-
                 String csvFilePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + cellValueString + ".csv";
-                String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
-                
+    
+                if (!fileOp.checkIfFileExists(csvFilePath)) {
+                    //Actual File
+                    new MessageBox("Selected Team Does Not Exist. Contact Admin for Help", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+    
+                Team[] allTeams = fileOp.extractTeamData(Constants.DATA_DIR + "teams.csv");
+                Team selectedTeam = null;
+                for (Team t : allTeams) {
+                    if (t.getTeamName().equals(cellValueString)) {
+                        selectedTeam = t;
+                        break;
+                    }
+                }
+    
+                if (selectedTeam == null) {
+                    //Teams.csv List
+                    new MessageBox("Selected team does not exist in the team list. Contact Admin for Help.", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+    
                 String[][] tempData = fileOp.readCSVPlayerData(csvFilePath); 
-                String[][] data = new String [tempData.length][7];
-
+                String[][] data = new String[tempData.length][7];
+                players = fileOp.extractPlayerData(csvFilePath);
+    
+                if (selectedTeam.getPlayerCount() != players.length) {
+                    new MessageBox("Player count mismatch for team '" + cellValueString + "'. Expected: " + selectedTeam.getPlayerCount() + ", Found: " + players.length, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+    
+                forms.removeAll();
+                String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
+    
                 for (int i = 0; i < tempData.length; i++) {
-                    data[i][0] = tempData[i][0] + ", " + tempData[i][1]; 
+                    data[i][0] = tempData[i][1] + ", " + tempData[i][0]; 
                     data[i][1] = tempData[i][2]; 
     
                     for (int j = 2, k = 3; j < 7 && k < tempData[i].length; j++, k++) { 
                         data[i][j] = tempData[i][k]; 
                     }
                 }
-
+    
                 table = createEditableTable(data, columnNames);
                 JScrollPane sp = createScrollPane(table);
-
+    
                 JButton applyButton = addButton("Apply", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-
+    
                 applyButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
                         handleApplyActionPlayerStats(csvFilePath, columnNames);
                     }
                 });
-
+    
                 JLabel tableTitle = createTableTitle("ENCODE PLAYER STATS FOR " + cellValueString);
                 forms.add(tableTitle);
                 forms.add(sp);
                 forms.revalidate();
                 forms.repaint();
             } else {
-                new MessageBox("No / Invalid Column Selected for Player Stats. Usage: Select A Team", 0);
+                new MessageBox("No / Invalid Column Selected for Player Stats. Usage: Select A Team", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -196,9 +225,9 @@ public class TableOfficial extends JFrame implements ActionListener {
         boolean isValidNumber = allFieldsFilled && validateNumbers(tempTeamStats, rowCount, columnCount);
 
         if (!allFieldsFilled) {
-            new MessageBox("Please fill in all fields.", 0);
+            new MessageBox("Please fill in all fields.", JOptionPane.ERROR_MESSAGE);
         } else if (!isValidNumber) {
-            new MessageBox("Please enter valid integer numbers.", 0);
+            new MessageBox("Please enter valid integer numbers.", JOptionPane.ERROR_MESSAGE);
         } else {
             String[][] teamStats = new String[tempTeamStats.length][8];
             for (int i = 0; i < tempTeamStats.length; i++) {
@@ -206,8 +235,8 @@ public class TableOfficial extends JFrame implements ActionListener {
                 String[] storeSplit = nameParts.split(", ");
                 // Check if name was split correctly
                 if (storeSplit.length == 2) { 
-                    teamStats[i][0] = storeSplit[0]; // Last name
-                    teamStats[i][1] = storeSplit[1]; // First name
+                    teamStats[i][0] = storeSplit[1]; // First name
+                    teamStats[i][1] = storeSplit[0]; // Last name
                 } else {
                     teamStats[i][0] = storeSplit[0];                      
                 }
@@ -333,13 +362,21 @@ public class TableOfficial extends JFrame implements ActionListener {
             if (selectedRow >= 0) {
                 String[] rowData = extractRowData(selectedRow);
 
+                for (int i = 0; i < 2; i++) { 
+                    String teamCsvFilePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + rowData[i] + ".csv";
+                    if (!fileOp.checkIfFileExists(teamCsvFilePath)) {
+                        new MessageBox("Team '" + rowData[i] + "' not found. Contact Admin for Help.", JOptionPane.ERROR_MESSAGE);
+                        return; 
+                    }
+                }
+
                 forms.removeAll(); // Clear previous content
                 setupGameReportForm(rowData);
 
                 forms.revalidate();
                 forms.repaint();
             } else {
-                new MessageBox("No / Invalid Row Selected for Game Report. Usage: Select A Team", 0);
+                new MessageBox("No / Invalid Row Selected for Game Report. Usage: Select A Team", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -465,7 +502,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                         break;
                     }
                 } catch (NumberFormatException nfex) {
-                    new MessageBox("ERROR: Input must be an integer.", 0);
+                    new MessageBox("ERROR: Input must be an integer.", JOptionPane.ERROR_MESSAGE);
                     isValidNumber = false;
                     break;
                 }
@@ -483,12 +520,12 @@ public class TableOfficial extends JFrame implements ActionListener {
             Arrays.fill(team1Stats, null);
             Arrays.fill(team2Stats, null);
             System.out.println("Missing input. Stats cleared.");
-            new MessageBox("Please fill in all fields.", 0);
+            new MessageBox("Please fill in all fields.", JOptionPane.ERROR_MESSAGE);
         } else if (!isValidNumber) {
             Arrays.fill(team1Stats, null);
             Arrays.fill(team2Stats, null);
             System.out.println("Invalid input. Stats cleared.");
-            new MessageBox("Please enter valid integer numbers.", 0);
+            new MessageBox("Please enter valid integer numbers.", JOptionPane.ERROR_MESSAGE);
         } else {
             overallMatchStats = calculateOverallMatchStats(team1Stats, team2Stats, rowData);
             fileOp.writeGameReportToCSV(team1Stats, team2Stats, overallMatchStats);
