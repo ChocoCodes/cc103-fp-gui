@@ -589,7 +589,7 @@ public class TableOfficial extends JFrame implements ActionListener {
         String fontSize = "30";
         String[] btnLabel = {
                 "<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + 
-                fontSize + "pt; text-align: center;'>SINGLE<br>ROUND ROBIN</body></html>",
+                fontSize + "pt; text-align: center;'>ROUND<br>ROBIN</body></html>",
                 "<html><body style='font-family: \"" + fontStyle + "\"; font-size: " + 
                 fontSize + "pt; text-align: center;'>SINGLE<br>ELIMINATION</body></html>",
                 "LOGOUT"
