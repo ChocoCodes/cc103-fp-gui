@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 // import java.util.Arrays;
 
+import javax.swing.JOptionPane;
+
 public class FileOperations {
 
     // Method that returns a boolean when: CSV File exists and follows the correct file structure
@@ -202,12 +204,12 @@ public class FileOperations {
             String line;
             while ((line = br.readLine()) != null) {
                 // Skip the header line
-                if (!line.startsWith("Team 1")) {
+                if (!line.startsWith("Team A")) {
                     rows.add(line.split(",")); 
                 }
             }
         } catch (IOException e) {
-            new MessageBox("ERROR: Could not read CSV file.", 0);
+            new MessageBox("ERROR: Could not read CSV file.", JOptionPane.ERROR_MESSAGE);
             return null;
         }
         return rows.toArray(new String[0][]); 
@@ -220,12 +222,12 @@ public class FileOperations {
             String line;
             while ((line = br.readLine()) != null) {
                 // Skip the header line
-                if (!line.startsWith("PLAYER")) {
-                    rows.add(line.split(", ")); 
+                if (!line.toLowerCase().startsWith("first name".toLowerCase())) {
+                    rows.add(line.split(",")); 
                 }
             }
         } catch (IOException e) {
-            new MessageBox("ERROR: Could not read CSV file.", 0);
+            new MessageBox("ERROR: Could not read CSV file.",JOptionPane.ERROR_MESSAGE);
             return null;
         }
         return rows.toArray(new String[0][]); 
@@ -233,44 +235,44 @@ public class FileOperations {
 
     //FILEPATHOPERATIONS
     public void writePlayerStatsToCSV(String[][] playerStats, String[] tempColumnHeaders, String filePath) {
-        String[] columnHeaders = new String[tempColumnHeaders.length + 1];
+        String[] columnHeaders = new String[tempColumnHeaders.length + 3]; // +3 for "First Name", "Last Name", "Jersey Number"
 
-        for (int i = 0; i < columnHeaders.length; i++) {
-            columnHeaders[0] = "LAST NAME";
-            columnHeaders[1] = "FIRST NAME";
+        // Set the first three column headers explicitly
+        columnHeaders[0] = "First Name";
+        columnHeaders[1] = "Last Name";
+        columnHeaders[2] = "Jersey Number";
 
-            if (i > 1) {
-                columnHeaders[i] = tempColumnHeaders[i - 1];
-            }
+        // Fill in the rest from tempColumnHeaders
+        for (int i = 0; i < tempColumnHeaders.length; i++) {
+            columnHeaders[i + 3] = tempColumnHeaders[i]; 
         }
-        try {
-            FileWriter output = new FileWriter(filePath);
 
+        try (FileWriter output = new FileWriter(filePath)) {
+            // Write the headers to the CSV
             for (int i = 0; i < columnHeaders.length; i++) {
                 output.write(columnHeaders[i]);
                 if (i < columnHeaders.length - 1) {
-                    output.write(","); 
+                    output.write(",");
                 }
             }
             output.write("\n");
-    
+
+            // Write the player statistics to the CSV
             for (int i = 0; i < playerStats.length; i++) {
                 for (int j = 0; j < playerStats[i].length; j++) {
-                    if (j == playerStats[i].length - 1) {
-                        output.write(playerStats[i][j]);
-                    } else {
-                        output.write(playerStats[i][j] + ", ");
+                    output.write(playerStats[i][j]);
+                    if (j < playerStats[i].length - 1) {
+                        output.write(",");
                     }
                 }
                 output.write("\n");
             }
-            new MessageBox("Player Stats saved to CSV successfully", 1);
-            output.close();
+            new MessageBox("Player Stats saved to CSV successfully", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
-            new MessageBox("Unable to write Player Stats file to CSV", 0);
+            new MessageBox("Unable to write Player Stats file to CSV", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
-
     //FILEPATHOPERATIONS
     public void writeGameReportToCSV(String[] team1, String[] team2, String[] overallMatchStats) {
         String filePath = Constants.DATA_DIR + Constants.STATS_DIR + overallMatchStats[0] + "VS" + overallMatchStats[1] + ".csv"; //Change later to actual file path
@@ -300,9 +302,9 @@ public class FileOperations {
             writer.write(overallMatchStats[1] + ",");  // Team 2 name
             writeLine(writer, team2);
     
-            new MessageBox("Game Report saved to CSV successfully", 1);
+            new MessageBox("Game Report saved to CSV successfully", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
-            new MessageBox("Unable to write Game Report file to CSV", 0);
+            new MessageBox("Unable to write Game Report file to CSV", JOptionPane.ERROR_MESSAGE);
         }
     }
     
