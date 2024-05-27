@@ -235,18 +235,17 @@ public class FileOperations {
 
     //FILEPATHOPERATIONS
     public void writePlayerStatsToCSV(String[][] playerStats, String[] tempColumnHeaders, String filePath) {
-        String[] columnHeaders = new String[tempColumnHeaders.length + 3]; // +3 for "First Name", "Last Name", "Jersey Number"
-
-        // Set the first three column headers explicitly
+        String[] columnHeaders = new String[8]; 
+    
         columnHeaders[0] = "First Name";
         columnHeaders[1] = "Last Name";
         columnHeaders[2] = "Jersey Number";
-
-        // Fill in the rest from tempColumnHeaders
-        for (int i = 0; i < tempColumnHeaders.length; i++) {
-            columnHeaders[i + 3] = tempColumnHeaders[i]; 
-        }
-
+        columnHeaders[3] = "POINT/S";
+        columnHeaders[4] = "REBOUNDS/S";
+        columnHeaders[5] = "ASSIST/S";
+        columnHeaders[6] = "BLOCK/S";
+        columnHeaders[7] = "STEAL/S";
+    
         try (FileWriter output = new FileWriter(filePath)) {
             // Write the headers to the CSV
             for (int i = 0; i < columnHeaders.length; i++) {
@@ -256,7 +255,7 @@ public class FileOperations {
                 }
             }
             output.write("\n");
-
+    
             // Write the player statistics to the CSV
             for (int i = 0; i < playerStats.length; i++) {
                 for (int j = 0; j < playerStats[i].length; j++) {

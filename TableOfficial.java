@@ -115,29 +115,44 @@ public class TableOfficial extends JFrame implements ActionListener {
         if (table != null) {
             int selectedRow = table.getSelectedRow();
             int selectedColumn = table.getSelectedColumn();
-
+    
             if (isSelectionValid(selectedRow, selectedColumn)) {
                 String cellValueString = String.valueOf(table.getValueAt(selectedRow, selectedColumn));
                 String csvFilePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + cellValueString + ".csv";
-
+    
                 if (!fileOp.checkIfFileExists(csvFilePath)) {
+                    //Actual File
                     new MessageBox("Selected Team Does Not Exist. Contact Admin for Help", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
-                String[][] tempData = fileOp.readCSVPlayerData(csvFilePath); 
-                String[][] data = new String [tempData.length][7];
-                players = fileOp.extractPlayerData(csvFilePath);
-
-                if (team.getPlayerCount() != players.length) {
-                    new MessageBox("Player count mismatch for team '" + cellValueString + "'. Expected: " + team.getPlayerCount() + ", Found: " + players.length, JOptionPane.ERROR_MESSAGE);
+    
+                Team[] allTeams = fileOp.extractTeamData(Constants.DATA_DIR + "teams.csv");
+                Team selectedTeam = null;
+                for (Team t : allTeams) {
+                    if (t.getTeamName().equals(cellValueString)) {
+                        selectedTeam = t;
+                        break;
+                    }
+                }
+    
+                if (selectedTeam == null) {
+                    //Teams.csv List
+                    new MessageBox("Selected team does not exist in the team list. Contact Admin for Help.", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
+    
+                String[][] tempData = fileOp.readCSVPlayerData(csvFilePath); 
+                String[][] data = new String[tempData.length][7];
+                players = fileOp.extractPlayerData(csvFilePath);
+    
+                if (selectedTeam.getPlayerCount() != players.length) {
+                    new MessageBox("Player count mismatch for team '" + cellValueString + "'. Expected: " + selectedTeam.getPlayerCount() + ", Found: " + players.length, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+    
                 forms.removeAll();
                 String[] columnNames = {"PLAYER", "JERSEY NO.", "POINT/S", "REBOUND/S", "ASSIST/S", "BLOCK/S", "STEAL/S"};
-                
-
+    
                 for (int i = 0; i < tempData.length; i++) {
                     data[i][0] = tempData[i][1] + ", " + tempData[i][0]; 
                     data[i][1] = tempData[i][2]; 
@@ -146,19 +161,19 @@ public class TableOfficial extends JFrame implements ActionListener {
                         data[i][j] = tempData[i][k]; 
                     }
                 }
-
+    
                 table = createEditableTable(data, columnNames);
                 JScrollPane sp = createScrollPane(table);
-
+    
                 JButton applyButton = addButton("Apply", PLAYER_STATS_BTN_X, PLAYER_STATS_BTN_Y, BUTTON_WIDTH_1, BUTTON_HEIGHT_1);
-
+    
                 applyButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
                         handleApplyActionPlayerStats(csvFilePath, columnNames);
                     }
                 });
-
+    
                 JLabel tableTitle = createTableTitle("ENCODE PLAYER STATS FOR " + cellValueString);
                 forms.add(tableTitle);
                 forms.add(sp);
