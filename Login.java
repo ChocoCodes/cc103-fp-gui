@@ -44,6 +44,7 @@ public class Login extends JFrame implements ActionListener {
         loginForm = new JPanel();
         for(int i = 0; i < descriptionFields.length; i++) {
             descriptionFields[i] = new JLabel(descFields[i]);
+            icons[i] = new JLabel();
         }
         titlePanel = new JPanel();
         descPanel = new JPanel();
@@ -61,11 +62,13 @@ public class Login extends JFrame implements ActionListener {
         titlePanel.setBounds(0,0, Constants.WIDTH / 2, Constants.HEIGHT);
         titlePanel.setBackground(bgColor);
 
+        setLoginIcons();
         for(int i = 0; i < descriptionFields.length; i++) {
             int defaultYpos = 90 + (60 * i);
             descriptionFields[i].setFont(Constants.customFonts[0].deriveFont(40f));
             descriptionFields[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[0]));
             descriptionFields[i].setBounds(15, defaultYpos, 400, 50);
+            descPanel.add(icons[i]);
             descPanel.add(descriptionFields[i]);
         }
         
@@ -115,6 +118,30 @@ public class Login extends JFrame implements ActionListener {
        if(e.getSource() == authBtn) {
             validateLogin();
        }
+    }
+
+    private void setLoginIcons() {
+        String[] iconPaths = {
+            Constants.ASSET_DIR + "sk.png",
+            Constants.ASSET_DIR + "nba.png",
+            Constants.ASSET_DIR + "usls.png"
+        };
+        int[][] iconDimensions = {
+            {50, 50}, 
+            {60, 40},  
+            {140, 40}  
+        };
+        int[][] iconBounds = {
+            {10, 10, 80, 80},
+            {70, 10, 100, 80}, 
+            {130, 10, 140, 80} 
+        };
+        for (int i = 0; i < icons.length; i++) {
+            Image iconImage = new ImageIcon(iconPaths[i]).getImage().getScaledInstance(iconDimensions[i][0], iconDimensions[i][1], Image.SCALE_SMOOTH);
+            icons[i].setIcon(new ImageIcon(iconImage));
+            icons[i].setBounds(iconBounds[i][0], iconBounds[i][1], iconBounds[i][2], iconBounds[i][3]);
+            descPanel.add(icons[i]);
+        }
     }
 
     private void validateLogin() {
