@@ -12,7 +12,6 @@ public class TableOfficial extends JFrame implements ActionListener {
     private Image tableOfficialProfile;
     private JLabel[] tableOfficialLabels = new JLabel[2];
     private FileOperations fileOp = new FileOperations();
-    private Team team = new Team();
     private Player[] players;
 
     // Table Constants

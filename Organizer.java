@@ -137,7 +137,6 @@ public class Organizer extends JFrame implements ActionListener {
             players = fileOp.extractPlayerData(filePath);
         }
         int pCountListed = team.getPlayerCount();
-        System.out.println(pCountListed);
         areValidInputs = validateFormInputs(playerInputFields, idx, 'P');
         if (areValidInputs && players.length < pCountListed) {
             String fName = playerInputFields[0].getText().toString();
