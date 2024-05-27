@@ -79,8 +79,6 @@ public class TableOfficial extends JFrame implements ActionListener {
     }
 
     private void setupSingleRoundRobinTable() {
-        System.out.println("Single Round Robin Button Pressed");
-
         //FILEPATH METHODS
         String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE; //
         String[][] data = fileOp.readCSVDataSchedules(csvFilePath);
@@ -100,8 +98,6 @@ public class TableOfficial extends JFrame implements ActionListener {
     }
 
     private void setupSingleEliminationTable() {
-        System.out.println("Single Elimination Button Pressed");
-
         //FILEPATH METHODS
         String csvFilePath = Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE;
         String[][] data = fileOp.readCSVDataSchedules(csvFilePath);
@@ -133,7 +129,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     
                 if (!fileOp.checkIfFileExists(csvFilePath)) {
                     //Actual File
-                    new MessageBox("Selected Team Does Not Exist. Contact Admin for Help", JOptionPane.ERROR_MESSAGE);
+                    new MessageBox("Selected Team Does Not Exist. Please contact Admin for help.", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
     
@@ -148,7 +144,7 @@ public class TableOfficial extends JFrame implements ActionListener {
     
                 if (selectedTeam == null) {
                     //Teams.csv List
-                    new MessageBox("Selected team does not exist in the team list. Contact Admin for Help.", JOptionPane.ERROR_MESSAGE);
+                    new MessageBox("Selected team does not exist in the team list. Please contact Admin for help.", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
     
@@ -191,7 +187,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                 forms.revalidate();
                 forms.repaint();
             } else {
-                new MessageBox("No / Invalid Column Selected for Player Stats. Usage: Select A Team", JOptionPane.ERROR_MESSAGE);
+                new MessageBox("No/Invalid Column Selected for Player Stats. Please select either of the teams.", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -232,7 +228,6 @@ public class TableOfficial extends JFrame implements ActionListener {
 
         String[][] tempTeamStats = extractTableData(rowCount, columnCount); //Row 0 Team 1, Row 1 Team 2
         boolean allFieldsFilled = checkAllFieldsFilled(tempTeamStats, rowCount, columnCount);
-        System.out.println("Before validation: " + Arrays.deepToString(tempTeamStats));
         boolean isValidNumber = allFieldsFilled && validateNumbers(tempTeamStats, rowCount, columnCount);
 
         if (!allFieldsFilled) {
@@ -254,11 +249,6 @@ public class TableOfficial extends JFrame implements ActionListener {
                 for (int j = 1; j < 7; j++) {
                     teamStats[i][j + 1] = tempTeamStats[i][j];
                 }
-            }
-            // DB: Print the contents of teamStats
-            System.out.println("teamStats contents:");
-            for (String[] row : teamStats) {
-                System.out.println(Arrays.toString(row)); 
             }
             fileOp.writePlayerStatsToCSV(teamStats, columnHeaders, filePath);
         }
@@ -352,14 +342,12 @@ public class TableOfficial extends JFrame implements ActionListener {
     private boolean validateNumbers(String[][] teamStats, int rowCount, int columnCount) {
     for (int row = 0; row < rowCount; row++) {
         for (int col = 2; col < columnCount; col++) {
-            System.out.println("Validating value at row " + row + ", col " + col + ": " + teamStats[row][col]);
             try {
                 int tempNum = Integer.parseInt(teamStats[row][col]);
                 if (tempNum < 0) {
                     return false;
                 }
             } catch (NumberFormatException nfe) {
-                System.out.println("Invalid number found at row " + row + ", col " + col + ": " + teamStats[row][col]);
                 return false;
             }
         }
@@ -513,7 +501,7 @@ public class TableOfficial extends JFrame implements ActionListener {
                         break;
                     }
                 } catch (NumberFormatException nfex) {
-                    new MessageBox("ERROR: Input must be an integer.", JOptionPane.ERROR_MESSAGE);
+                    new MessageBox("Input must be an integer.", JOptionPane.ERROR_MESSAGE);
                     isValidNumber = false;
                     break;
                 }
@@ -530,12 +518,10 @@ public class TableOfficial extends JFrame implements ActionListener {
         if (!allFieldsFilled) {
             Arrays.fill(team1Stats, null);
             Arrays.fill(team2Stats, null);
-            System.out.println("Missing input. Stats cleared.");
             new MessageBox("Please fill in all fields.", JOptionPane.ERROR_MESSAGE);
         } else if (!isValidNumber) {
             Arrays.fill(team1Stats, null);
             Arrays.fill(team2Stats, null);
-            System.out.println("Invalid input. Stats cleared.");
             new MessageBox("Please enter valid integer numbers.", JOptionPane.ERROR_MESSAGE);
         } else {
             overallMatchStats = calculateOverallMatchStats(team1Stats, team2Stats, rowData);
@@ -674,9 +660,5 @@ public class TableOfficial extends JFrame implements ActionListener {
         button.addActionListener(this);
         forms.add(button);
         return button; // Return the created button
-    }
-
-    public static void main(String[] args) {
-        new TableOfficial();
     }
 }

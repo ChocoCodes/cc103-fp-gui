@@ -426,9 +426,7 @@ public class Organizer extends JFrame implements ActionListener {
                 String filePath = Constants.DATA_DIR + Constants.PLAYERS_DIR + selectedTeam + ".csv";
                 String jNum = inputs[2].getText().toString();
                 players = fileOp.extractPlayerData(filePath);
-                System.out.println(players.length);
                 boolean duplicateJerseyNumber = fileOp.checkDuplicates(jNum, players);
-                System.out.println(duplicateJerseyNumber);
                 if(duplicateJerseyNumber) {
                     inputs[2].setText("");
                     new MessageBox("Please check your inputs if it is a duplicate entry or not.", JOptionPane.ERROR_MESSAGE);
