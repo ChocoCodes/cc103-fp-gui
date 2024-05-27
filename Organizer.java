@@ -196,12 +196,16 @@ public class Organizer extends JFrame implements ActionListener {
     private void handlePopupOperations() {
         switch (currentOperation) {
             case 'D':   
-                String teamToDelete = popupOptions.getSelectedItem().toString();
-                boolean teamDeleted = deleteTeamRecord(teamToDelete);
-                if(!teamDeleted) {
-                    new MessageBox("Failed to delete team " + teamToDelete + ". Please check the CSV File.", JOptionPane.ERROR_MESSAGE);
+                if (teams.length > 0) {
+                    String teamToDelete = popupOptions.getSelectedItem().toString();
+                    boolean teamDeleted = deleteTeamRecord(teamToDelete);
+                    if(!teamDeleted) {
+                        new MessageBox("Failed to delete team " + teamToDelete + ". Please check the CSV File.", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        new MessageBox("Team deleted successfully. Updated CSV File.", JOptionPane.INFORMATION_MESSAGE);
+                    }
                 } else {
-                    new MessageBox("Team deleted successfully. Updated CSV File.", JOptionPane.INFORMATION_MESSAGE);
+                    new MessageBox("Unable to delete. Team CSV File is empty.", JOptionPane.ERROR_MESSAGE);
                 }
                 break;
             case 'G':
@@ -643,7 +647,7 @@ public class Organizer extends JFrame implements ActionListener {
             // Calculate the X position to center the label
             int labelWidth = counterLabels[i + 2].getPreferredSize().width;
             int xLabelPos = (200 - labelWidth) / 2; // Centered position
-            counterLabels[i + 2].setBounds(xLabelPos, 70, labelWidth, 50); // Positioning inside the panel
+            counterLabels[i + 2].setBounds(xLabelPos, 70, labelWidth + 20, 50); // Positioning inside the panel
     
             int buttonYPos = 50 + 70 * i;
             dashBoardButtons[i] = new JButton(btnNames[i]);
