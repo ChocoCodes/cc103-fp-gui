@@ -42,7 +42,19 @@ public class TableOfficial extends JFrame implements ActionListener {
         setLayout(null);
         setResizable(false);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int response = JOptionPane.showConfirmDialog(null, "Do you really want to close the window?",
+                        "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (response == JOptionPane.YES_OPTION) {
+                    dispose();
+                } else if (response == JOptionPane.NO_OPTION || response == JOptionPane.CLOSED_OPTION) {
+                    // Do nothing if "No" or "Close" button is clicked
+                }
+            }
+        });
         setVisible(true);
     }
 

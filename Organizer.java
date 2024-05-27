@@ -28,9 +28,6 @@ public class Organizer extends JFrame implements ActionListener {
     private String selectedTeam = "";
 
     public Organizer() {
-        setFrame();
-        initComponents();
-        Constants.setCustomFont();
         connectedToCSV = connectToCSVDB();     
         if(!connectedToCSV) {
             new MessageBox("Please manually check if the CSV File exists or is not corrupted.", JOptionPane.ERROR_MESSAGE);
@@ -42,6 +39,21 @@ public class Organizer extends JFrame implements ActionListener {
                 new MessageBox("Please manually check your CSV File if corrupted or empty.", JOptionPane.ERROR_MESSAGE);
             }
         }
+        setFrame();
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int response = JOptionPane.showConfirmDialog(null, "Do you really want to close the window?",
+                        "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (response == JOptionPane.YES_OPTION) {
+                    dispose();
+                } else if (response == JOptionPane.NO_OPTION || response == JOptionPane.CLOSED_OPTION) {
+                    // Do nothing if "No" or "Close" button is clicked
+                }
+            }
+        });
+        initComponents();
+        Constants.setCustomFont();
         setDashboard();
     }
 
@@ -51,7 +63,7 @@ public class Organizer extends JFrame implements ActionListener {
         setLayout(null);
         setResizable(false);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setVisible(true);
     }
 
@@ -151,8 +163,12 @@ public class Organizer extends JFrame implements ActionListener {
             } else {
                 new MessageBox("An error occured while saving data to the CSV File.", JOptionPane.ERROR_MESSAGE);                 
             }  
+            if(players.length > pCountListed) {
+                new MessageBox("Team is already full. Cannot process your information", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         } else {
-            new MessageBox("Team is already full. Cannot process your information", JOptionPane.ERROR_MESSAGE);
+            new MessageBox("An error occured when validating user input. Input may be invalid/duplicate.", JOptionPane.ERROR_MESSAGE);
             resetInputFields(playerInputFields);
         }
     }
@@ -189,11 +205,15 @@ public class Organizer extends JFrame implements ActionListener {
                 }
                 break;
             case 'G':
+                teams = fileOp.extractTeamData(Constants.DATA_DIR + Constants.TEAM_FILE);
+                boolean teamFileExist = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.TEAM_FILE);
                 boolean isValidTeamCount = checkMinimumTeamCount(teams),
                 roundRobinGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.RR_FILE), 
                 eliminationGenerated = fileOp.checkIfFileExists(Constants.DATA_DIR + Constants.SCHEDULES_DIR + Constants.SE_FILE);
-                if(!isValidTeamCount) {
-                    new MessageBox("Minimum Team Counts should be " + Constants.MIN_TEAMS + " before generating.", JOptionPane.ERROR_MESSAGE);
+                if(!isValidTeamCount || !teamFileExist) {
+                    String errorMessage = (!teamFileExist) ? "Team CSV File does not exists.": "Please ensure that you have sufficient teams in the CSV File.";
+                    new MessageBox(errorMessage, JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
                 if(roundRobinGenerated && eliminationGenerated) {
                     new MessageBox("Tournament format/s already generated.", JOptionPane.ERROR_MESSAGE);
@@ -408,9 +428,10 @@ public class Organizer extends JFrame implements ActionListener {
                 players = fileOp.extractPlayerData(filePath);
                 System.out.println(players.length);
                 boolean duplicateJerseyNumber = fileOp.checkDuplicates(jNum, players);
+                System.out.println(duplicateJerseyNumber);
                 if(duplicateJerseyNumber) {
                     inputs[2].setText("");
-                    new MessageBox("No duplicate jersey numbers allowed.", JOptionPane.ERROR_MESSAGE);
+                    new MessageBox("Please check your inputs if it is a duplicate entry or not.", JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
                 break;
@@ -610,14 +631,14 @@ public class Organizer extends JFrame implements ActionListener {
             // Add the counter name label to the panel
             xPos = (i == 0) ? 60 : 50;
             counterLabels[i] = new JLabel(counterNames[i]);
-            counterLabels[i].setBounds(xPos, 10, 180, 30); // Positioning inside the panel
+            counterLabels[i].setBounds(xPos, 10, 200, 30); // Positioning inside the panel
             counterLabels[i].setFont(Constants.customFonts[0].deriveFont(20f));
             counterLabels[i].setForeground(Color.decode(Constants.CUSTOM_COLORS[1]));
             counterPanels[i].add(counterLabels[i]);
             
             // Add the count label to the panel
             counterLabels[i + 2] = new JLabel(counterNames[i + 2]);
-            counterLabels[i + 2].setFont(new Font("Arial", Font.BOLD, 50));
+            counterLabels[i + 2].setFont(Constants.customFonts[0].deriveFont(30f));
             counterLabels[i + 2].setForeground(Color.decode(Constants.CUSTOM_COLORS[1]));
             counterPanels[i].add(counterLabels[i + 2]);
 

@@ -42,13 +42,16 @@ public class FileOperations {
 
     public boolean checkDuplicates(String input, Player[] players) {
         if(players.length == 0) {
+            System.out.println("false");
             return false;
         }
         for(int i = 0; i < players.length; i++) {
             if(players[i].getPlayerJerseyNum().equals(input)) {
+                System.out.println("true");
                 return true;
             }
         }
+        System.out.println("false last");
         return false;
     }
 

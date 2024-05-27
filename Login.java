@@ -192,7 +192,7 @@ class Constants {
     public static final int PLAYER_FIELD_COUNTS = 8;
     public static final int MIN_PLAYERS = 5;
     public static final int MAX_PLAYERS = 18;
-    public static final int MIN_TEAMS = 8;
+    public static final int MIN_TEAMS = 4;
 
     public static final String[] DASHBOARD_COLUMNS = {
         "Team Name", 
