@@ -35,7 +35,7 @@ To address the problem, the proponents developed a Tournament Management System 
 - **Game Scheduling**. The system offers tools for scheduling games, allowing organizers to allocate game times and opponents efficiently according to the chosen tournament format.
 - **Team and Player Management.**  Organizers can manage team registrations, player rosters, and related information, ensuring accurate records throughout the tournament.
 
-#### A. Table Officials
+#### B. Table Officials
 
 - **Match Management**. Officials can access the scheduled matches and select specific ones to manage, allowing them to focus on the relevant games during the tournament.
 - **Individual Team and Player Stats Management**. TO's are responsible for encoding team statistics during matches, including scores, rebounds, assists, and other relevant metrics, ensuring accurate records of team performance. In addition, player stats such as points scored, rebounds, and assists, blocks, and steals are recorded, providing detailed insights into individual player performances throughout the tournament.
