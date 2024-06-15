@@ -59,6 +59,6 @@ To address the problem, the proponents developed a Tournament Management System 
 ## Contact
 
 If you encounter any bugs or have suggestions for improvements, please feel free to contact us via:
-**Email:** 
+#### Email: 
 - [johnrlnd1704@gmail.com](https://mail.google.com/mail/?view=cm&fs=1&to=johnrlnd1704@gmail.com)
 - [tamayoraeanchrissean@gmail.com](https://mail.google.com/mail/?view=cm&fs=1&to=tamayoraeanchrissean@gmail.com)
